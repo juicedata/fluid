@@ -8,6 +8,7 @@ DATASET_CONTROLLER_IMG ?= ${IMG_REPO}/dataset-controller
 ALLUXIORUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/alluxioruntime-controller
 JINDORUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/jindoruntime-controller
 GOOSEFSRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/goosefsruntime-controller
+JUICEFSRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/juicefsruntime-controller
 CSI_IMG ?= ${IMG_REPO}/fluid-csi
 LOADER_IMG ?= ${IMG_REPO}/fluid-dataloader
 INIT_USERS_IMG ?= ${IMG_REPO}/init-users
@@ -67,6 +68,9 @@ jindoruntime-controller-build: generate fmt vet
 
 goosefsruntime-controller-build: generate fmt vet
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/goosefsruntime-controller -ldflags '${LDFLAGS}' cmd/goosefs/main.go
+
+juicefsruntime-controller-build: generate fmt vet
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/juicefsruntime-controller -ldflags '${LDFLAGS}' cmd/juicefs/main.go
 
 webhook-build: generate fmt vet
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/fluid-webhook -ldflags '${LDFLAGS}' cmd/webhook/main.go
@@ -151,6 +155,9 @@ docker-push-jindoruntime-controller: docker-build-jindoruntime-controller
 	docker push ${JINDORUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-push-goosefsruntime-controller: docker-build-goosefsruntime-controller
+	docker push ${GOOSEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
+
+docker-push-juicefsruntime-controller: docker-build-juicefsruntime-controller
 	docker push ${GOOSEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-push-csi: docker-build-csi
