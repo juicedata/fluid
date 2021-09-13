@@ -16,6 +16,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/fluid-cloudnative/fluid/pkg/common"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -36,6 +37,9 @@ type JuiceFSRuntimeSpec struct {
 
 	// Desired state for JuiceFS Fuse
 	Fuse JuiceFuseSpec `json:"fuse,omitempty"`
+
+	// Tiered storage used by JuiceFS
+	TieredStore TieredStore `json:"tieredstore,omitempty"`
 
 	// Management strategies for the dataset to which the runtime is bound
 	Data Data `json:"data,omitempty"`
@@ -86,6 +90,51 @@ type JuiceFuseSpec struct {
 type JuiceFSRuntimeStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	// config map used to set configurations
+
+	// FusePhase is the Fuse running phase
+	FusePhase RuntimePhase `json:"fusePhase"`
+
+	// Reason for the condition's last transition.
+	FuseReason string `json:"fuseReason,omitempty"`
+
+	// The total number of nodes that can be running the runtime Fuse
+	// pod (including nodes correctly running the runtime Fuse pod).
+	CurrentFuseNumberScheduled int32 `json:"currentFuseNumberScheduled"`
+
+	// The total number of nodes that should be running the runtime Fuse
+	// pod (including nodes correctly running the runtime Fuse pod).
+	DesiredFuseNumberScheduled int32 `json:"desiredFuseNumberScheduled"`
+
+	// The number of nodes that should be running the runtime Fuse pod and have one
+	// or more of the runtime Fuse pod running and ready.
+	FuseNumberReady int32 `json:"fuseNumberReady"`
+
+	// The number of nodes that should be running the
+	// runtime fuse pod and have none of the runtime fuse pod running and available
+	// (ready for at least spec.minReadySeconds)
+	// +optional
+	FuseNumberUnavailable int32 `json:"fuseNumberUnavailable,omitempty"`
+
+	// The number of nodes that should be running the
+	// runtime Fuse pod and have one or more of the runtime Fuse pod running and
+	// available (ready for at least spec.minReadySeconds)
+	// +optional
+	FuseNumberAvailable int32 `json:"fuseNumberAvailable,omitempty"`
+
+	// Duration tell user how much time was spent to setup the runtime
+	SetupDuration string `json:"setupDuration,omitempty"`
+
+	// Represents the latest available observations of a ddc runtime's current state.
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	Conditions []RuntimeCondition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+
+	// CacheStatus represents the total resources of the dataset.
+	CacheStates common.CacheStateList `json:"cacheStates,omitempty"`
+
+	// Selector is used for auto-scaling
+	Selector string `json:"selector,omitempty"` // this must be the string form of the selector
 }
 
 //+kubebuilder:object:root=true
