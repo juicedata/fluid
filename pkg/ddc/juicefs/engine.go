@@ -19,6 +19,8 @@ type JuiceFSEngine struct {
 	client.Client
 	//When reaching this gracefulShutdownLimits, the system is forced to clean up.
 	gracefulShutdownLimits int32
+	runtimeInfo            base.RuntimeInfoInterface
+	UnitTest               bool
 	retryShutdown          int32
 	initImage              string
 }

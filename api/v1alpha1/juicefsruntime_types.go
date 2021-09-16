@@ -36,15 +36,15 @@ type JuiceFSRuntimeSpec struct {
 	InitUsers InitUsersSpec `json:"initUsers,omitempty"`
 
 	// Desired state for JuiceFS Fuse
-	Fuse JuiceFuseSpec `json:"fuse,omitempty"`
+	Fuse JuiceFSFuseSpec `json:"fuse,omitempty"`
 
 	// Tiered storage used by JuiceFS
 	TieredStore TieredStore `json:"tieredstore,omitempty"`
 
-	// Management strategies for the dataset to which the runtime is bound
-	Data Data `json:"data,omitempty"`
+	// The replicas of the cache client, need to be specified
+	Replicas int32 `json:"replicas,omitempty"`
 
-	// Manage the user to run Alluxio Runtime
+	// Manage the user to run Juicefs Runtime
 	RunAs *User `json:"runAs,omitempty"`
 
 	// Disable monitoring for JuiceFS Runtime
@@ -53,7 +53,7 @@ type JuiceFSRuntimeSpec struct {
 	DisablePrometheus bool `json:"disablePrometheus,omitempty"`
 }
 
-type JuiceFuseSpec struct {
+type JuiceFSFuseSpec struct {
 	// Image for JuiceFS fuse
 	Image string `json:"image,omitempty"`
 
@@ -65,9 +65,6 @@ type JuiceFuseSpec struct {
 
 	// Secret name which is used by JuiceFS fuse
 	SecretName string `json:"secret_name"`
-
-	// Secret namespace which is used by JuiceFS fuse
-	SecretNamespace string `json:"secret_namespace"`
 
 	// Environment variables that will be used by JuiceFS Fuse
 	Env map[string]string `json:"env"`
@@ -132,9 +129,6 @@ type JuiceFSRuntimeStatus struct {
 
 	// CacheStatus represents the total resources of the dataset.
 	CacheStates common.CacheStateList `json:"cacheStates,omitempty"`
-
-	// Selector is used for auto-scaling
-	Selector string `json:"selector,omitempty"` // this must be the string form of the selector
 }
 
 //+kubebuilder:object:root=true
@@ -160,4 +154,9 @@ type JuiceFSRuntimeList struct {
 
 func init() {
 	SchemeBuilder.Register(&JuiceFSRuntime{}, &JuiceFSRuntimeList{})
+}
+
+// Replicas gets the replicas of runtime worker
+func (r *JuiceFSRuntime) Replicas() int32 {
+	return r.Spec.Replicas
 }

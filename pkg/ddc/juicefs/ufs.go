@@ -21,7 +21,7 @@ func (j JuiceFSEngine) TotalFileNums() (int64, error) {
 }
 
 func (j JuiceFSEngine) ShouldCheckUFS() (should bool, err error) {
-	panic("implement me")
+	return false, nil
 }
 
 func (j JuiceFSEngine) PrepareUFS() (err error) {
@@ -29,7 +29,7 @@ func (j JuiceFSEngine) PrepareUFS() (err error) {
 }
 
 func (j JuiceFSEngine) ShouldUpdateUFS() (ufsToUpdate *utils.UFSToUpdate) {
-	panic("implement me")
+	return nil
 }
 
 func (j JuiceFSEngine) UpdateOnUFSChange(ufsToUpdate *utils.UFSToUpdate) (ready bool, err error) {

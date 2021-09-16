@@ -1,9 +1,11 @@
 package juicefs
 
 func (j JuiceFSEngine) CheckRuntimeHealthy() (err error) {
-	panic("implement me")
+	// todo
+	return
 }
 
 func (j JuiceFSEngine) CheckRuntimeReady() (ready bool) {
-	panic("implement me")
+	// todo
+	return
 }
