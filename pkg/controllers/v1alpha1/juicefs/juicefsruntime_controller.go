@@ -53,7 +53,7 @@ func NewRuntimeReconciler(client client.Client,
 	scheme *runtime.Scheme,
 	recorder record.EventRecorder) *JuiceFSRuntimeReconciler {
 	r := &JuiceFSRuntimeReconciler{
-		Scheme: scheme,
+		Scheme:  scheme,
 		mutex:   &sync.Mutex{},
 		engines: map[string]base.Engine{},
 	}

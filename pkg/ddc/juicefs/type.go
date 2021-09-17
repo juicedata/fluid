@@ -16,7 +16,10 @@ limitations under the License.
 
 package juicefs
 
-import "github.com/fluid-cloudnative/fluid/pkg/common"
+import (
+	"github.com/fluid-cloudnative/fluid/pkg/common"
+	"time"
+)
 
 // JuiceFS The value yaml file
 type JuiceFS struct {
@@ -49,4 +52,19 @@ type TieredStore struct {
 	Quota string `yaml:"quota,omitempty"`
 	High  string `yaml:"high,omitempty"`
 	Low   string `yaml:"low,omitempty"`
+}
+
+type cacheHitStates struct {
+	// todo
+	cacheHitRatio        string
+	localThroughputRatio string
+	bytesReadLocal       int64
+	timestamp            time.Time
+}
+
+type cacheStates struct {
+	cacheCapacity    string
+	cached           string
+	cachedPercentage string
+	cacheHitStates   cacheHitStates
 }

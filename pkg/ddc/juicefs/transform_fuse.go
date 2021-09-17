@@ -51,7 +51,11 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	value.Fuse.Image, value.Fuse.ImageTag, value.ImagePullPolicy = j.parseFuseImage(image, tag, imagePullPolicy)
 	value.Fuse.MountPath = j.getMountPoint()
 	value.Fuse.NodeSelector = map[string]string{}
-	value.Fuse.HostMountPath = mount.MountPoint
+	if strings.HasPrefix(mount.MountPoint, "local://") {
+		value.Fuse.HostMountPath = mount.MountPoint[8:]
+	} else {
+		value.Fuse.HostMountPath = mount.MountPoint
+	}
 	if mount.Path == "" {
 		value.Fuse.SubPath = mount.Name
 	} else {
@@ -63,6 +67,15 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	for k, v := range mount.Options {
 		options = append(options, fmt.Sprintf("%s=%s", k, v))
 	}
+	if len(runtime.Spec.TieredStore.Levels) >= 0 {
+		cacheDir := runtime.Spec.TieredStore.Levels[0].Path
+		cacheSize := runtime.Spec.TieredStore.Levels[0].Quota
+		cacheRatio := runtime.Spec.TieredStore.Levels[0].Low
+		options = append(options, fmt.Sprintf("cache-dir=%s", cacheDir))
+		options = append(options, fmt.Sprintf("cache-size=%s", cacheSize))
+		options = append(options, fmt.Sprintf("free-space-ratio=%s", cacheRatio))
+	}
+
 	mountArgs = append(mountArgs, "-o", strings.Join(options, ","))
 
 	value.Fuse.Command = strings.Join(mountArgs, " ")

@@ -44,7 +44,7 @@ spec:
           command:
             - sh
             - c
-            - "/usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME}"
+            - "/usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME} --no-update"
           env:
             - name: NAME
               valueFrom:
