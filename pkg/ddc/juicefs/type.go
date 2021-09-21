@@ -30,7 +30,12 @@ type JuiceFS struct {
 
 	NodeSelector map[string]string `yaml:"nodeSelector,omitempty"`
 	Fuse         Fuse              `yaml:"fuse,omitempty"`
+	Secret       Secret            `yaml:"secret,omitempty"`
 	TieredStore  TieredStore       `yaml:"tieredstore,omitempty"`
+}
+
+type Secret struct {
+	Name string `json:"name"`
 }
 
 type Fuse struct {
@@ -45,6 +50,7 @@ type Fuse struct {
 	StatCmd         string            `yaml:"statCmd,omitempty"`
 	Enabled         bool              `yaml:"enabled,omitempty"`
 	Resources       common.Resources  `yaml:"resources,omitempty"`
+	CriticalPod     bool              `yaml:"criticalPod,omitempty"`
 }
 
 type TieredStore struct {

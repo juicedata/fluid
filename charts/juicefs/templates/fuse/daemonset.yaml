@@ -26,6 +26,9 @@ spec:
         heritage: {{ .Release.Service }}
         role: juicefs-fuse
     spec:
+      {{- if .Values.fuse.criticalPod }}
+      priorityClassName: system-node-critical
+      {{- end }}
       dnsPolicy: {{ .Values.fuse.dnsPolicy }}
       nodeSelector:
       {{- if .Values.fuse.nodeSelector }}
@@ -43,8 +46,10 @@ spec:
           imagePullPolicy: {{ .Values.fuse.imagePullPolicy }}
           command:
             - sh
-            - c
+            - -c
             - "/usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME} --no-update"
+          securityContext:
+            privileged: true
           env:
             - name: NAME
               valueFrom:
@@ -121,9 +126,9 @@ spec:
           securityContext:
             privileged: true
           lifecycle:
-            postStart:
-              exec:
-                command: ["sh", "-c", "mkdir {{ .Values.fuse.mountPath }}/{{ .Values.fuse.subPath }}"]
+#            postStart:
+#              exec:
+#                command: ["sh", "-c", "mkdir {{ .Values.fuse.mountPath }}/{{ .Values.fuse.subPath }}"]
             preStop:
               exec:
                 command: ["sh", "-c", "umount {{ .Values.fuse.mountPath }}"]
