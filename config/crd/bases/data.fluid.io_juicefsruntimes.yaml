@@ -100,7 +100,6 @@ spec:
                   description: Secret name which is used by JuiceFS fuse
                   type: string
               required:
-              - env
               - secret_name
               type: object
             initUsers:
