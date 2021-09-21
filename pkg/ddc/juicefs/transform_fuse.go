@@ -26,6 +26,7 @@ import (
 
 func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, dataset *datav1alpha1.Dataset, value *JuiceFS) (err error) {
 	value.Fuse = Fuse{}
+	value.Secret = Secret{}
 
 	if len(dataset.Spec.Mounts) <= 0 {
 		return errors.New("do not assign mount point")
@@ -39,6 +40,7 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	} else {
 		secretName = runtime.Spec.Fuse.SecretName
 	}
+	value.Secret.Name = secretName
 	secret, err := j.getSecret(secretName, j.namespace)
 	if err != nil {
 		return
@@ -51,18 +53,18 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	value.Fuse.Image, value.Fuse.ImageTag, value.ImagePullPolicy = j.parseFuseImage(image, tag, imagePullPolicy)
 	value.Fuse.MountPath = j.getMountPoint()
 	value.Fuse.NodeSelector = map[string]string{}
-	if strings.HasPrefix(mount.MountPoint, "local://") {
-		value.Fuse.HostMountPath = mount.MountPoint[8:]
-	} else {
-		value.Fuse.HostMountPath = mount.MountPoint
-	}
+	value.Fuse.HostMountPath = j.getMountPoint()
 	if mount.Path == "" {
 		value.Fuse.SubPath = mount.Name
 	} else {
 		value.Fuse.SubPath = mount.Path
 	}
 
-	mountArgs := []string{common.JuiceFSMountPath, string(secret.Data["name"]), value.Fuse.MountPath}
+	source := string(secret.Data["metaurl"])
+	if !strings.Contains(source, "://") {
+		source = "redis://" + source
+	}
+	mountArgs := []string{common.JuiceFSMountPath, source, value.Fuse.MountPath}
 	options := []string{"metrics=0.0.0.0:9567"}
 	for k, v := range mount.Options {
 		options = append(options, fmt.Sprintf("%s=%s", k, v))
