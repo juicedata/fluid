@@ -26,6 +26,9 @@ spec:
         heritage: {{ .Release.Service }}
         role: juicefs-fuse
     spec:
+      {{- if .Values.fuse.criticalPod }}
+      priorityClassName: system-node-critical
+      {{- end }}
       dnsPolicy: {{ .Values.fuse.dnsPolicy }}
       nodeSelector:
       {{- if .Values.fuse.nodeSelector }}

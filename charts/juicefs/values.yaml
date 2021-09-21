@@ -21,6 +21,7 @@ secret:
 ## FUSE ##
 
 fuse:
+  criticalPod: false
   enabled: true
   image: juicedata/juicefs-csi-driver
   imageTag: v0.10.5

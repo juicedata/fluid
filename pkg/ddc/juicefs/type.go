@@ -45,6 +45,7 @@ type Fuse struct {
 	StatCmd         string            `yaml:"statCmd,omitempty"`
 	Enabled         bool              `yaml:"enabled,omitempty"`
 	Resources       common.Resources  `yaml:"resources,omitempty"`
+	CriticalPod     bool              `yaml:"criticalPod,omitempty"`
 }
 
 type TieredStore struct {

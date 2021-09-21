@@ -68,7 +68,7 @@ type JuiceFSFuseSpec struct {
 	SecretName string `json:"secret_name"`
 
 	// Environment variables that will be used by JuiceFS Fuse
-	Env map[string]string `json:"env"`
+	Env map[string]string `json:"env,omitempty"`
 
 	// Resources that will be requested by JuiceFS Fuse.
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
