@@ -52,7 +52,7 @@ unit-test: generate fmt vet
 
 # Build binary
 
-build: dataset-controller-build alluxioruntime-controller-build jindoruntime-controller-build csi-build webhook-build
+build: dataset-controller-build alluxioruntime-controller-build jindoruntime-controller-build juicefsruntime-controller-build csi-build webhook-build
 
 csi-build: generate fmt vet
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -o bin/fluid-csi -ldflags '${LDFLAGS}' cmd/csi/main.go
@@ -70,7 +70,7 @@ goosefsruntime-controller-build: generate fmt vet
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/goosefsruntime-controller -ldflags '${LDFLAGS}' cmd/goosefs/main.go
 
 juicefsruntime-controller-build: generate fmt vet
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/juicefsruntime-controller -ldflags '${LDFLAGS}' cmd/juicefs/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/juicefsruntime-controller -ldflags '-s -w ${LDFLAGS}' cmd/juicefs/main.go
 
 webhook-build: generate fmt vet
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -gcflags="-N -l" -a -o bin/fluid-webhook -ldflags '${LDFLAGS}' cmd/webhook/main.go
@@ -132,7 +132,7 @@ docker-build-jindoruntime-controller: generate fmt vet
 docker-build-goosefsruntime-controller: generate fmt vet
 	docker build --no-cache . -f docker/Dockerfile.goosefsruntime -t ${GOOSEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
-docker-build-juicefsruntime-controller: generate fmt vet
+docker-build-juicefsruntime-controller: generate fmt vet juicefsruntime-controller-build
 	docker build --no-cache . -f docker/Dockerfile.juicefsruntime -t ${JUICEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-build-csi: generate fmt vet

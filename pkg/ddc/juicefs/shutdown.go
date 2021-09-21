@@ -17,5 +17,6 @@ limitations under the License.
 package juicefs
 
 func (j JuiceFSEngine) Shutdown() error {
-	panic("implement me")
+	// todo
+	return nil
 }
