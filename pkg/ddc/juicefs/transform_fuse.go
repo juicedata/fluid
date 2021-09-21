@@ -67,7 +67,7 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	for k, v := range mount.Options {
 		options = append(options, fmt.Sprintf("%s=%s", k, v))
 	}
-	if len(runtime.Spec.TieredStore.Levels) >= 0 {
+	if len(runtime.Spec.TieredStore.Levels) > 0 {
 		cacheDir := runtime.Spec.TieredStore.Levels[0].Path
 		cacheSize := runtime.Spec.TieredStore.Levels[0].Quota
 		cacheRatio := runtime.Spec.TieredStore.Levels[0].Low
@@ -96,6 +96,8 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	value.Fuse.Enabled = true
 
 	j.transformResourcesForFuse(runtime, value)
+	// set critical fuse pod to avoid eviction
+	value.Fuse.CriticalPod = common.CriticalFusePodEnabled()
 
 	return
 }

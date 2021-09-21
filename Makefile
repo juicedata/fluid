@@ -132,6 +132,9 @@ docker-build-jindoruntime-controller: generate fmt vet
 docker-build-goosefsruntime-controller: generate fmt vet
 	docker build --no-cache . -f docker/Dockerfile.goosefsruntime -t ${GOOSEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
+docker-build-juicefsruntime-controller: generate fmt vet
+	docker build --no-cache . -f docker/Dockerfile.juicefsruntime -t ${JUICEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
+
 docker-build-csi: generate fmt vet
 	docker build --no-cache . -f docker/Dockerfile.csi -t ${CSI_IMG}:${GIT_VERSION}
 
@@ -158,7 +161,7 @@ docker-push-goosefsruntime-controller: docker-build-goosefsruntime-controller
 	docker push ${GOOSEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-push-juicefsruntime-controller: docker-build-juicefsruntime-controller
-	docker push ${GOOSEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
+	docker push ${JUICEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-push-csi: docker-build-csi
 	docker push ${CSI_IMG}:${GIT_VERSION}

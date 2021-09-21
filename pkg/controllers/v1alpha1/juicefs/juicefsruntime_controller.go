@@ -39,8 +39,6 @@ var _ controllers.RuntimeReconcilerInterface = (*JuiceFSRuntimeReconciler)(nil)
 
 // JuiceFSRuntimeReconciler reconciles a JuiceFSRuntime object
 type JuiceFSRuntimeReconciler struct {
-	client.Client
-	Log     logr.Logger
 	Scheme  *runtime.Scheme
 	engines map[string]base.Engine
 	mutex   *sync.Mutex
