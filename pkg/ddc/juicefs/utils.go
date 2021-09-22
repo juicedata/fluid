@@ -26,6 +26,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
+	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
+	options "sigs.k8s.io/controller-runtime/pkg/client"
 	"strings"
 )
 
@@ -57,6 +59,33 @@ func (j *JuiceFSEngine) getDaemonset(name string, namespace string) (fuse *appsv
 
 	return fuse, err
 }
+
+func (j *JuiceFSEngine) getRunningPodsOfDaemonset(dsName string, namespace string) (pods []corev1.Pod, err error) {
+	ds, err := j.getDaemonset(dsName, namespace)
+	if err != nil {
+		return pods, err
+	}
+
+	selector := ds.Spec.Selector.MatchLabels
+
+	pods = []corev1.Pod{}
+	podList := &corev1.PodList{}
+	err = j.Client.List(context.TODO(), podList, options.InNamespace(namespace), options.MatchingLabels(selector))
+	if err != nil {
+		return pods, err
+	}
+
+	for _, pod := range podList.Items {
+		if !podutil.IsPodReady(&pod) {
+			j.Log.Info("Skip the pod because it's not ready", "pod", pod.Name, "namespace", pod.Namespace)
+			continue
+		}
+		pods = append(pods, pod)
+	}
+
+	return pods, nil
+}
+
 func (j *JuiceFSEngine) getSecret(name string, namespace string) (fuse *corev1.Secret, err error) {
 	fuse = &corev1.Secret{}
 	err = j.Client.Get(context.TODO(), types.NamespacedName{
