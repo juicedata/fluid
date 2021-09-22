@@ -43,5 +43,8 @@ func (r *JuiceFSRuntimeReconciler) GetOrCreateEngine(ctx cruntime.ReconcileReque
 }
 
 func (r *JuiceFSRuntimeReconciler) RemoveEngine(ctx cruntime.ReconcileRequestContext) {
-	panic("implement me")
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	id := ddc.GenerateEngineID(ctx.NamespacedName)
+	delete(r.engines, id)
 }

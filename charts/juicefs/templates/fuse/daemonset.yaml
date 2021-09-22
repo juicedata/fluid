@@ -126,9 +126,6 @@ spec:
           securityContext:
             privileged: true
           lifecycle:
-#            postStart:
-#              exec:
-#                command: ["sh", "-c", "mkdir {{ .Values.fuse.mountPath }}/{{ .Values.fuse.subPath }}"]
             preStop:
               exec:
                 command: ["sh", "-c", "umount {{ .Values.fuse.mountPath }}"]
