@@ -18,7 +18,6 @@ package juicefs
 
 import (
 	"github.com/fluid-cloudnative/fluid/pkg/common"
-	"time"
 )
 
 // JuiceFS The value yaml file
@@ -60,17 +59,19 @@ type TieredStore struct {
 	Low   string `yaml:"low,omitempty"`
 }
 
-type cacheHitStates struct {
-	// todo
+type cacheStates struct {
+	cacheCapacity        string
+	cached               string
+	cachedPercentage     string
 	cacheHitRatio        string
-	localThroughputRatio string
-	bytesReadLocal       int64
-	timestamp            time.Time
+	cacheThroughputRatio string
 }
 
-type cacheStates struct {
-	cacheCapacity    string
-	cached           string
-	cachedPercentage string
-	cacheHitStates   cacheHitStates
+type fuseMetrics struct {
+	blockCacheBytes     int64
+	blockCacheHits      int64
+	blockCacheMiss      int64
+	blockCacheHitsBytes int64
+	blockCacheMissBytes int64
+	usedSpace           int64
 }

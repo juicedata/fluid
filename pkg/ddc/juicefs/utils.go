@@ -28,6 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
 	options "sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 	"strings"
 )
 
@@ -60,7 +61,7 @@ func (j *JuiceFSEngine) getDaemonset(name string, namespace string) (fuse *appsv
 	return fuse, err
 }
 
-func (j *JuiceFSEngine) getRunningPodsOfDaemonset(dsName string, namespace string) (pods []corev1.Pod, err error) {
+func (j JuiceFSEngine) getRunningPodsOfDaemonset(dsName string, namespace string) (pods []corev1.Pod, err error) {
 	ds, err := j.getDaemonset(dsName, namespace)
 	if err != nil {
 		return pods, err
@@ -142,6 +143,10 @@ func getMountRoot() (path string) {
 	} else {
 		path = path + "/" + common.JUICEFS_RUNTIME
 	}
-	// e.Log.Info("Mount root", "path", path)
 	return
+}
+
+func parseInt64Size(sizeStr string) (int64, error) {
+	size, err := strconv.ParseFloat(sizeStr, 64)
+	return int64(size), err
 }
