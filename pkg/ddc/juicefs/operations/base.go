@@ -83,6 +83,23 @@ func (j JuiceFileUtils) Mkdir(juiceSubPath string) (err error) {
 	return
 }
 
+// GetMetric Get pod metrics
+func (j JuiceFileUtils) GetMetric() (metrics string, err error) {
+	var (
+		command = []string{"curl", "0.0.0.0:9567/metrics"}
+		stdout  string
+		stderr  string
+	)
+
+	stdout, stderr, err = j.exec(command, true)
+	if err != nil {
+		err = fmt.Errorf("execute command %v with expectedErr: %v stdout %s and stderr %s", command, err, stdout, stderr)
+		return
+	}
+	metrics = stdout
+	return
+}
+
 // exec with timeout
 func (j JuiceFileUtils) exec(command []string, verbose bool) (stdout string, stderr string, err error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*1500)
