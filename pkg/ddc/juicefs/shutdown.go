@@ -16,7 +16,46 @@ limitations under the License.
 
 package juicefs
 
-func (j JuiceFSEngine) Shutdown() error {
-	// todo
+import (
+	"github.com/fluid-cloudnative/fluid/pkg/utils/helm"
+)
+
+func (j JuiceFSEngine) Shutdown() (err error) {
+	if j.retryShutdown < j.gracefulShutdownLimits {
+		err = j.cleanupCache()
+		if err != nil {
+			j.retryShutdown = j.retryShutdown + 1
+			j.Log.Info("clean cache failed",
+				"retry times", j.retryShutdown)
+			return
+		}
+	}
+	err = j.destroyMaster()
+	if err != nil {
+		return
+	}
 	return nil
+}
+
+// destroyMaster Destroy the master
+func (j *JuiceFSEngine) destroyMaster() (err error) {
+	var found bool
+	found, err = helm.CheckRelease(j.name, j.namespace)
+	if err != nil {
+		return err
+	}
+
+	if found {
+		err = helm.DeleteRelease(j.name, j.namespace)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+// cleanupCache cleans up the cache
+func (j *JuiceFSEngine) cleanupCache() (err error) {
+	// todo
+	return
 }

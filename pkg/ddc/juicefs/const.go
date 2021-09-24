@@ -14,23 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package common
+package juicefs
 
-// Runtime for Juice
 const (
-	JUICEFS_RUNTIME = "juicefs"
-
-	JUICEFS_MOUNT_TYPE = "JuiceFS"
-
-	JUICEFS_NAMESPACE = "juicefs-system"
-
-	JUICEFS_CHART = JUICEFS_RUNTIME
-
-	JUICEFS_FUSE_IMAGE_ENV = "JUICEFS_FUSE_IMAGE_ENV"
-
-	DEFAULT_JUICEFS_FUSE_IMAGE = "juicedata/juicefs-csi-driver:v0.10.5"
-
-	JuiceFSMountPath = "/bin/mount.juicefs"
-
-	JuiceFSFuseContainer = "juicefs-fuse"
+	BlockCacheBytes     = "juicefs_blockcache_bytes"
+	BlockCacheHits      = "juicefs_blockcache_hits"
+	BlockCacheMiss      = "juicefs_blockcache_miss"
+	BlockCacheHitBytes  = "juicefs_blockcache_hit_bytes"
+	BlockCacheMissBytes = "juicefs_blockcache_miss_bytes"
+	UsedSpace           = "juicefs_used_space"
 )
