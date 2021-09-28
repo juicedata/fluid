@@ -34,7 +34,7 @@ func TestJuiceFSEngine_ShouldSetupMaster(t *testing.T) {
 				Namespace: "fluid",
 			},
 			Status: datav1alpha1.JuiceFSRuntimeStatus{
-				FusePhase: datav1alpha1.RuntimePhaseNotReady,
+				WorkerPhase: datav1alpha1.RuntimePhaseNotReady,
 			},
 		},
 		{
@@ -43,7 +43,7 @@ func TestJuiceFSEngine_ShouldSetupMaster(t *testing.T) {
 				Namespace: "fluid",
 			},
 			Status: datav1alpha1.JuiceFSRuntimeStatus{
-				FusePhase: datav1alpha1.RuntimePhaseNone,
+				WorkerPhase: datav1alpha1.RuntimePhaseNone,
 			},
 		},
 	}
@@ -92,7 +92,7 @@ func TestJuiceFSEngine_SetupMaster(t *testing.T) {
 	daemonSetInputs := []v1.DaemonSet{
 		{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "test-fuse",
+				Name:      "test-worker",
 				Namespace: "fluid",
 			},
 			Status: v1.DaemonSetStatus{
@@ -148,7 +148,7 @@ func TestJuiceFSEngine_SetupMaster(t *testing.T) {
 			t.Errorf("fail to get the runtime")
 			return
 		}
-		if juicefsruntime.Status.FusePhase == datav1alpha1.RuntimePhaseNone {
+		if juicefsruntime.Status.WorkerPhase == datav1alpha1.RuntimePhaseNone {
 			t.Errorf("fail to update the runtime")
 			return
 		}

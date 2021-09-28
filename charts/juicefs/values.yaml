@@ -15,12 +15,33 @@ tolerations: []
 tieredstore:
   path: /dev/shm
 
-secret:
-  name: jfs-secret
+## WORKER ##
+worker:
+  image: juicedata/juicefs-csi-driver
+  imageTag: v0.10.5
+  imagePullPolicy: IfNotPresent
+  nodeSelector: {}
+  cacheDir: ""
+  resources:
+    requests:
+#      cpu: "0.5"
+#      memory: "1G"
+    limits:
+#      cpu: "4"
+#      memory: "4G"
+
 
 ## FUSE ##
 
 fuse:
+  format:
+    enable: true
+    nameSecret: jfs-secret
+    accesskeySecret: jfs-secret
+    secretkeySecret: jfs-secret
+    bucketSecret: jfs-secret
+    metaurlSecret: jfs-secret
+    storageSecret: jfs-secret
   criticalPod: false
   enabled: true
   image: juicedata/juicefs-csi-driver
@@ -30,7 +51,6 @@ fuse:
   dnsPolicy: ClusterFirstWithHostNet
   # Mount path in the host
   mountPath: /mnt/jfs
-  subPath: test
   hostMountPath: /mnt/jfs
   command: "/usr/local/bin/juicefs mount /mnt/jfs"
   statCmd: "stat -c %i /mnt/jfs"

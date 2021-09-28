@@ -17,6 +17,7 @@ limitations under the License.
 package juicefs
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/brahma-adshonor/gohook"
@@ -78,6 +79,9 @@ func TestSetupMasterInternal(t *testing.T) {
 			Name:      "test",
 			Namespace: "fluid",
 		},
+		Data: map[string][]byte{
+			"metaurl": []byte(base64.StdEncoding.EncodeToString([]byte("test"))),
+		},
 	}
 	testObjs := []runtime.Object{}
 	testObjs = append(testObjs, (*juicefsSecret).DeepCopy())
@@ -97,8 +101,15 @@ func TestSetupMasterInternal(t *testing.T) {
 				Namespace: "fluid",
 			},
 			Spec: datav1alpha1.DatasetSpec{Mounts: []datav1alpha1.Mount{{
-				MountPoint: "local:///mnt/test",
+				MountPoint: "jfs://mnt",
 				Name:       "test",
+				EncryptOptions: []datav1alpha1.EncryptOption{{
+					Name: "meta_url",
+					ValueFrom: datav1alpha1.EncryptOptionSource{
+						SecretKeyRef: datav1alpha1.SecretKeySelector{
+							Name: "test",
+							Key:  "metaurl",
+						}}}},
 			}}},
 		},
 	}
@@ -127,7 +138,7 @@ func TestSetupMasterInternal(t *testing.T) {
 	}
 	err = engine.setupMasterInternal()
 	if err != nil {
-		t.Errorf("fail to exec check helm release")
+		t.Errorf("fail to exec check helm release: %v", err)
 	}
 	wrappedUnhookCheckRelease()
 
@@ -138,7 +149,7 @@ func TestSetupMasterInternal(t *testing.T) {
 	}
 	err = engine.setupMasterInternal()
 	if err == nil {
-		t.Errorf("fail to catch the error")
+		t.Errorf("fail to catch the error: %v", err)
 	}
 	wrappedUnhookCheckRelease()
 
@@ -179,6 +190,9 @@ func TestGenerateJuiceFSValueFile(t *testing.T) {
 			Name:      "test",
 			Namespace: "fluid",
 		},
+		Data: map[string][]byte{
+			"metaurl": []byte(base64.StdEncoding.EncodeToString([]byte("test"))),
+		},
 	}
 	testObjs := []runtime.Object{}
 	testObjs = append(testObjs, (*juicefsSecret).DeepCopy())
@@ -202,8 +216,13 @@ func TestGenerateJuiceFSValueFile(t *testing.T) {
 					{
 						MountPoint: "local:///mnt/test",
 						Name:       "test",
-					},
-				},
+						EncryptOptions: []datav1alpha1.EncryptOption{{
+							Name: "meta_url",
+							ValueFrom: datav1alpha1.EncryptOptionSource{
+								SecretKeyRef: datav1alpha1.SecretKeySelector{
+									Name: "test",
+									Key:  "metaurl"},
+							}}}}},
 			},
 		},
 	}

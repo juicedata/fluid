@@ -40,66 +40,66 @@ func (j JuiceFSEngine) TotalFileNums() (int64, error) {
 }
 
 func (j JuiceFSEngine) ShouldCheckUFS() (should bool, err error) {
-	return true, nil
+	return false, nil
 }
 
 func (j JuiceFSEngine) PrepareUFS() (err error) {
-	// 1. Mount UFS (Synchronous Operation)
-	shouldMountUfs, err := j.shouldMountUFS()
-	if err != nil {
-		return
-	}
-	j.Log.Info("shouldMountUFS", "should", shouldMountUfs)
-
-	if shouldMountUfs {
-		err = j.mountUFS()
-		if err != nil {
-			return
-		}
-	}
-	j.Log.Info("mountUFS")
+	//// 1. Mount UFS (Synchronous Operation)
+	//shouldMountUfs, err := j.shouldMountUFS()
+	//if err != nil {
+	//	return
+	//}
+	//j.Log.Info("shouldMountUFS", "should", shouldMountUfs)
+	//
+	//if shouldMountUfs {
+	//	err = j.mountUFS()
+	//	if err != nil {
+	//		return
+	//	}
+	//}
+	//j.Log.Info("mountUFS")
 
 	return
 }
 
 // shouldMountUFS checks if there's any UFS that need to be mounted
 func (j *JuiceFSEngine) shouldMountUFS() (should bool, err error) {
-	dataset, err := utils.GetDataset(j.Client, j.name, j.namespace)
-	j.Log.Info("get dataset info", "dataset", dataset)
-	if err != nil {
-		return should, err
-	}
-
-	fuseName := j.getFuseDaemonsetName()
-	pods, err := j.getRunningPodsOfDaemonset(fuseName, j.namespace)
-	if err != nil {
-		return should, err
-	}
-
-	for _, pod := range pods {
-		fileUtils := operations.NewJuiceFileUtils(pod.Name, common.JuiceFSFuseContainer, j.namespace, j.Log)
-
-		// Check subpath
-		for _, mount := range dataset.Spec.Mounts {
-			subpath := ""
-			if mount.Path == "" {
-				subpath = mount.Name
-			} else {
-				subpath = mount.Path
-			}
-			juiceFSSubPath := fmt.Sprintf("%s/%s", j.getMountPoint(), subpath)
-			existed, err := fileUtils.IsExist(juiceFSSubPath)
-			if err != nil {
-				should = false
-				return should, err
-			}
-			if !existed {
-				j.Log.Info("Found dataset subpath not existed.", "dataset", dataset)
-				should = true
-				return should, err
-			}
-		}
-	}
+	//dataset, err := utils.GetDataset(j.Client, j.name, j.namespace)
+	//j.Log.Info("get dataset info", "dataset", dataset)
+	//if err != nil {
+	//	return should, err
+	//}
+	//
+	//fuseName := j.getFuseDaemonsetName()
+	//pods, err := j.getRunningPodsOfDaemonset(fuseName, j.namespace)
+	//if err != nil {
+	//	return should, err
+	//}
+	//
+	//for _, pod := range pods {
+	//	fileUtils := operations.NewJuiceFileUtils(pod.Name, common.JuiceFSFuseContainer, j.namespace, j.Log)
+	//
+	//	// Check subpath
+	//	for _, mount := range dataset.Spec.Mounts {
+	//		subpath := ""
+	//		if mount.Path == "" {
+	//			subpath = mount.Name
+	//		} else {
+	//			subpath = mount.Path
+	//		}
+	//		juiceFSSubPath := fmt.Sprintf("%s/%s", j.getMountPoint(), subpath)
+	//		existed, err := fileUtils.IsExist(juiceFSSubPath)
+	//		if err != nil {
+	//			should = false
+	//			return should, err
+	//		}
+	//		if !existed {
+	//			j.Log.Info("Found dataset subpath not existed.", "dataset", dataset)
+	//			should = true
+	//			return should, err
+	//		}
+	//	}
+	//}
 	return should, err
 }
 

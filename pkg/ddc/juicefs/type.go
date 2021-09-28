@@ -29,27 +29,42 @@ type JuiceFS struct {
 
 	NodeSelector map[string]string `yaml:"nodeSelector,omitempty"`
 	Fuse         Fuse              `yaml:"fuse,omitempty"`
-	Secret       Secret            `yaml:"secret,omitempty"`
+	Worker       Worker            `yaml:"worker,omitempty"`
 	TieredStore  TieredStore       `yaml:"tieredstore,omitempty"`
 }
 
-type Secret struct {
-	Name string `json:"name"`
+type Worker struct {
+	Image           string            `yaml:"image,omitempty"`
+	NodeSelector    map[string]string `yaml:"nodeSelector,omitempty"`
+	ImageTag        string            `yaml:"imageTag,omitempty"`
+	ImagePullPolicy string            `yaml:"imagePullPolicy,omitempty"`
+	Resources       common.Resources  `yaml:"resources,omitempty"`
+	CacheDir        string            `yaml:"cache_dir"`
 }
 
 type Fuse struct {
+	Format          Format            `yaml:"format,omitempty"`
 	Image           string            `yaml:"image,omitempty"`
 	NodeSelector    map[string]string `yaml:"nodeSelector,omitempty"`
 	ImageTag        string            `yaml:"imageTag,omitempty"`
 	ImagePullPolicy string            `yaml:"imagePullPolicy,omitempty"`
 	MountPath       string            `yaml:"mountPath,omitempty"`
-	SubPath         string            `yaml:"subPath,omitempty"`
 	HostMountPath   string            `yaml:"hostMountPath,omitempty"`
 	Command         string            `yaml:"command,omitempty"`
 	StatCmd         string            `yaml:"statCmd,omitempty"`
 	Enabled         bool              `yaml:"enabled,omitempty"`
 	Resources       common.Resources  `yaml:"resources,omitempty"`
 	CriticalPod     bool              `yaml:"criticalPod,omitempty"`
+}
+
+type Format struct {
+	Enable          bool   `yaml:"enable"`
+	NameSecret      string `yaml:"name_secret"`
+	AccessKeySecret string `yaml:"access_key_secret"`
+	SecretKeySecret string `yaml:"secret_key_secret"`
+	BucketSecret    string `yaml:"bucket_secret"`
+	MetaUrlSecret   string `yaml:"meta_url_secret"`
+	StorageSecret   string `yaml:"storage_secret"`
 }
 
 type TieredStore struct {
