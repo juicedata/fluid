@@ -37,11 +37,31 @@ func (j *JuiceFSEngine) transform(runtime *datav1alpha1.JuiceFSRuntime) (value *
 
 	value.FullnameOverride = j.name
 
+	// transform the workers
+	err = j.transformWorkers(runtime, dataset, value)
+	if err != nil {
+		return
+	}
+
 	// transform the fuse
 	err = j.transformFuse(runtime, dataset, value)
 	if err != nil {
 		return
 	}
 
+	return
+}
+
+func (j *JuiceFSEngine) transformWorkers(runtime *datav1alpha1.JuiceFSRuntime, dataset *datav1alpha1.Dataset, value *JuiceFS) (err error) {
+	value.Worker = Worker{}
+
+	labelName := j.getCommonLabelName()
+
+	if len(value.Worker.NodeSelector) == 0 {
+		value.Worker.NodeSelector = map[string]string{}
+	}
+	value.Worker.NodeSelector[labelName] = "true"
+
+	j.transformResourcesForWorker(runtime, value)
 	return
 }

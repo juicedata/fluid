@@ -51,7 +51,7 @@ func (j *JuiceFSEngine) createFusePersistentVolume() (err error) {
 	return volumeHelper.CreatePersistentVolumeForRuntime(j.Client,
 		runtimeInfo,
 		j.getMountPoint(),
-		common.JUICEFS_MOUNT_TYPE,
+		common.JuiceFSMountType,
 		j.Log)
 }
 

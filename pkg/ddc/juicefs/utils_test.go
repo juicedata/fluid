@@ -327,7 +327,7 @@ func TestJuiceFSEngine_parseFuseImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := &JuiceFSEngine{}
-			os.Setenv(common.JUICEFS_FUSE_IMAGE_ENV, "juicedata/juicefs-csi-driver:v0.10.5")
+			os.Setenv(common.JuiceFSFuseImageEnv, "juicedata/juicefs-csi-driver:v0.10.5")
 			got, got1, got2 := e.parseFuseImage(tt.args.image, tt.args.tag, tt.args.imagePullPolicy)
 			if got != tt.want {
 				t.Errorf("JuiceFSEngine.parseFuseImage() got = %v, want %v", got, tt.want)

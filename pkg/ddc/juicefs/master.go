@@ -36,7 +36,7 @@ func (j JuiceFSEngine) ShouldSetupMaster() (should bool, err error) {
 		return
 	}
 
-	switch runtime.Status.FusePhase {
+	switch runtime.Status.WorkerPhase {
 	case datav1alpha1.RuntimePhaseNone:
 		should = true
 	default:
@@ -46,20 +46,20 @@ func (j JuiceFSEngine) ShouldSetupMaster() (should bool, err error) {
 }
 
 func (j JuiceFSEngine) SetupMaster() (err error) {
-	fuseName := j.getFuseDaemonsetName()
+	workerName := j.getWorkerDaemonsetName()
 
-	// 1. Setup the fuse
-	_, err = j.getDaemonset(fuseName, j.namespace)
+	// 1. Setup
+	_, err = j.getDaemonset(workerName, j.namespace)
 	if err != nil && apierrs.IsNotFound(err) {
 		//1. Is not found error
-		j.Log.V(1).Info("SetupMaster", "fuse", fuseName)
+		j.Log.V(1).Info("SetupMaster", "worker", workerName)
 		return j.setupMasterInternal()
 	} else if err != nil {
 		//2. Other errors
 		return
 	} else {
 		//3.The fuse has been set up
-		j.Log.V(1).Info("The fuse has been set.")
+		j.Log.V(1).Info("The worker has been set.")
 	}
 
 	// 2. Update the status of the runtime
@@ -70,12 +70,21 @@ func (j JuiceFSEngine) SetupMaster() (err error) {
 		}
 		runtimeToUpdate := runtime.DeepCopy()
 
-		runtimeToUpdate.Status.FusePhase = datav1alpha1.RuntimePhaseNotReady
+		runtimeToUpdate.Status.WorkerPhase = datav1alpha1.RuntimePhaseNotReady
+		replicas := runtimeToUpdate.Spec.Worker.Replicas
+		if replicas == 0 {
+			replicas = 1
+		}
+
+		// Init selector for worker
+		runtimeToUpdate.Status.Selector = j.getWorkerSelectors()
+		runtimeToUpdate.Status.DesiredWorkerNumberScheduled = replicas
+
 		if len(runtimeToUpdate.Status.Conditions) == 0 {
 			runtimeToUpdate.Status.Conditions = []datav1alpha1.RuntimeCondition{}
 		}
-		cond := utils.NewRuntimeCondition(datav1alpha1.RuntimeFusesInitialized, datav1alpha1.RuntimeFusesInitializedReason,
-			"The fuse is initialized.", corev1.ConditionTrue)
+		cond := utils.NewRuntimeCondition(datav1alpha1.RuntimeWorkersInitialized, datav1alpha1.RuntimeWorkersInitializedReason,
+			"The worker is initialized.", corev1.ConditionTrue)
 		runtimeToUpdate.Status.Conditions =
 			utils.UpdateRuntimeCondition(runtimeToUpdate.Status.Conditions,
 				cond)

@@ -53,7 +53,7 @@ func TestJuiceFSEngine_ShouldSetupWorkers(t *testing.T) {
 						Namespace: "juicefs",
 					},
 					Status: datav1alpha1.JuiceFSRuntimeStatus{
-						FusePhase: datav1alpha1.RuntimePhaseNone,
+						WorkerPhase: datav1alpha1.RuntimePhaseNone,
 					},
 				},
 			},
@@ -71,7 +71,7 @@ func TestJuiceFSEngine_ShouldSetupWorkers(t *testing.T) {
 						Namespace: "juicefs",
 					},
 					Status: datav1alpha1.JuiceFSRuntimeStatus{
-						FusePhase: datav1alpha1.RuntimePhaseNotReady,
+						WorkerPhase: datav1alpha1.RuntimePhaseNotReady,
 					},
 				},
 			},
@@ -89,7 +89,7 @@ func TestJuiceFSEngine_ShouldSetupWorkers(t *testing.T) {
 						Namespace: "juicefs",
 					},
 					Status: datav1alpha1.JuiceFSRuntimeStatus{
-						FusePhase: datav1alpha1.RuntimePhasePartialReady,
+						WorkerPhase: datav1alpha1.RuntimePhasePartialReady,
 					},
 				},
 			},
@@ -107,7 +107,7 @@ func TestJuiceFSEngine_ShouldSetupWorkers(t *testing.T) {
 						Namespace: "juicefs",
 					},
 					Status: datav1alpha1.JuiceFSRuntimeStatus{
-						FusePhase: datav1alpha1.RuntimePhaseReady,
+						WorkerPhase: datav1alpha1.RuntimePhaseReady,
 					},
 				},
 			},
@@ -268,6 +268,7 @@ func TestJuiceFSEngine_CheckWorkersReady(t *testing.T) {
 	type fields struct {
 		runtime   *datav1alpha1.JuiceFSRuntime
 		fuse      *appsv1.DaemonSet
+		worker    *appsv1.DaemonSet
 		name      string
 		namespace string
 	}
@@ -292,6 +293,18 @@ func TestJuiceFSEngine_CheckWorkersReady(t *testing.T) {
 						Fuse: datav1alpha1.JuiceFSFuseSpec{
 							Global: true,
 						},
+					},
+				},
+				worker: &appsv1.DaemonSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test0-worker",
+						Namespace: "juicefs",
+					},
+					Status: appsv1.DaemonSetStatus{
+						NumberAvailable:        1,
+						NumberReady:            1,
+						DesiredNumberScheduled: 1,
+						CurrentNumberScheduled: 1,
 					},
 				},
 				fuse: &appsv1.DaemonSet{
@@ -326,6 +339,17 @@ func TestJuiceFSEngine_CheckWorkersReady(t *testing.T) {
 						},
 					},
 				},
+				worker: &appsv1.DaemonSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test1-worker",
+						Namespace: "juicefs",
+					},
+					Status: appsv1.DaemonSetStatus{
+						NumberAvailable:        0,
+						DesiredNumberScheduled: 1,
+						CurrentNumberScheduled: 0,
+					},
+				},
 				fuse: &appsv1.DaemonSet{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test1-fuse",
@@ -356,9 +380,10 @@ func TestJuiceFSEngine_CheckWorkersReady(t *testing.T) {
 			s.AddKnownTypes(datav1alpha1.GroupVersion, tt.fields.runtime)
 			s.AddKnownTypes(datav1alpha1.GroupVersion, data)
 			s.AddKnownTypes(appsv1.SchemeGroupVersion, tt.fields.fuse)
+			s.AddKnownTypes(appsv1.SchemeGroupVersion, tt.fields.worker)
 			_ = v1.AddToScheme(s)
 
-			runtimeObjs = append(runtimeObjs, tt.fields.runtime, data, tt.fields.fuse)
+			runtimeObjs = append(runtimeObjs, tt.fields.runtime, data, tt.fields.fuse, tt.fields.worker)
 			mockClient := fake.NewFakeClientWithScheme(s, runtimeObjs...)
 			e := &JuiceFSEngine{
 				runtime:   tt.fields.runtime,
