@@ -17,7 +17,6 @@ limitations under the License.
 package juicefs
 
 import (
-	"encoding/base64"
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,7 +35,7 @@ func TestJuiceFSEngine_transform(t *testing.T) {
 			Namespace: "fluid",
 		},
 		Data: map[string][]byte{
-			"metaurl": []byte(base64.StdEncoding.EncodeToString([]byte("test"))),
+			"metaurl": []byte("test"),
 		},
 	}
 	testObjs := []runtime.Object{}
@@ -73,7 +72,7 @@ func TestJuiceFSEngine_transform(t *testing.T) {
 					MountPoint: "local:///mnt/test",
 					Name:       "test",
 					EncryptOptions: []datav1alpha1.EncryptOption{{
-						Name: "meta_url",
+						Name: "metaurl",
 						ValueFrom: datav1alpha1.EncryptOptionSource{
 							SecretKeyRef: datav1alpha1.SecretKeySelector{
 								Name: "test",

@@ -17,7 +17,6 @@ limitations under the License.
 package juicefs
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/brahma-adshonor/gohook"
@@ -80,7 +79,7 @@ func TestSetupMasterInternal(t *testing.T) {
 			Namespace: "fluid",
 		},
 		Data: map[string][]byte{
-			"metaurl": []byte(base64.StdEncoding.EncodeToString([]byte("test"))),
+			"metaurl": []byte("test"),
 		},
 	}
 	testObjs := []runtime.Object{}
@@ -104,7 +103,7 @@ func TestSetupMasterInternal(t *testing.T) {
 				MountPoint: "jfs://mnt",
 				Name:       "test",
 				EncryptOptions: []datav1alpha1.EncryptOption{{
-					Name: "meta_url",
+					Name: "metaurl",
 					ValueFrom: datav1alpha1.EncryptOptionSource{
 						SecretKeyRef: datav1alpha1.SecretKeySelector{
 							Name: "test",
@@ -191,7 +190,7 @@ func TestGenerateJuiceFSValueFile(t *testing.T) {
 			Namespace: "fluid",
 		},
 		Data: map[string][]byte{
-			"metaurl": []byte(base64.StdEncoding.EncodeToString([]byte("test"))),
+			"metaurl": []byte("test"),
 		},
 	}
 	testObjs := []runtime.Object{}
@@ -217,7 +216,7 @@ func TestGenerateJuiceFSValueFile(t *testing.T) {
 						MountPoint: "local:///mnt/test",
 						Name:       "test",
 						EncryptOptions: []datav1alpha1.EncryptOption{{
-							Name: "meta_url",
+							Name: "metaurl",
 							ValueFrom: datav1alpha1.EncryptOptionSource{
 								SecretKeyRef: datav1alpha1.SecretKeySelector{
 									Name: "test",

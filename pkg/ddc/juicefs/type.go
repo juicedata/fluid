@@ -43,12 +43,13 @@ type Worker struct {
 }
 
 type Fuse struct {
-	Format          Format            `yaml:"format,omitempty"`
+	Prepare         Prepare           `yaml:"prepare,omitempty"`
 	Image           string            `yaml:"image,omitempty"`
 	NodeSelector    map[string]string `yaml:"nodeSelector,omitempty"`
 	ImageTag        string            `yaml:"imageTag,omitempty"`
 	ImagePullPolicy string            `yaml:"imagePullPolicy,omitempty"`
 	MountPath       string            `yaml:"mountPath,omitempty"`
+	MetaUrl         string            `yaml:"metaUrl,omitempty"`
 	HostMountPath   string            `yaml:"hostMountPath,omitempty"`
 	Command         string            `yaml:"command,omitempty"`
 	StatCmd         string            `yaml:"statCmd,omitempty"`
@@ -57,14 +58,14 @@ type Fuse struct {
 	CriticalPod     bool              `yaml:"criticalPod,omitempty"`
 }
 
-type Format struct {
-	Enable          bool   `yaml:"enable"`
-	NameSecret      string `yaml:"name_secret"`
-	AccessKeySecret string `yaml:"access_key_secret"`
-	SecretKeySecret string `yaml:"secret_key_secret"`
-	BucketSecret    string `yaml:"bucket_secret"`
-	MetaUrlSecret   string `yaml:"meta_url_secret"`
-	StorageSecret   string `yaml:"storage_secret"`
+type Prepare struct {
+	SubPath         string `yaml:"subPath,omitempty"`
+	NameSecret      string `yaml:"nameSecret"`
+	AccessKeySecret string `yaml:"accesskeySecret"`
+	SecretKeySecret string `yaml:"secretkeySecret"`
+	BucketSecret    string `yaml:"bucketSecret"`
+	MetaUrlSecret   string `yaml:"metaurlSecret"`
+	StorageSecret   string `yaml:"storageSecret"`
 }
 
 type TieredStore struct {

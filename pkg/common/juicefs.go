@@ -30,6 +30,8 @@ const (
 
 	DefaultJuiceFSFuseImage = "juicedata/juicefs-csi-driver:v0.10.5"
 
+	DefaultJuiceFSRuntimeImage = "juicedata/juicefs-csi-driver:v0.10.5"
+
 	JuiceFSMountPath = "/bin/mount.juicefs"
 
 	JuiceFSFuseContainer = "juicefs-fuse"

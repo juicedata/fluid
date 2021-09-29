@@ -69,7 +69,7 @@ func TestTransformFuse(t *testing.T) {
 					MountPoint: "local:///mnt/test",
 					Name:       "test",
 					EncryptOptions: []datav1alpha1.EncryptOption{{
-						Name: "meta_url",
+						Name: "metaurl",
 						ValueFrom: datav1alpha1.EncryptOptionSource{
 							SecretKeyRef: datav1alpha1.SecretKeySelector{
 								Name: "test",

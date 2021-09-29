@@ -19,6 +19,7 @@ package juicefs
 import (
 	"fmt"
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
+	"github.com/fluid-cloudnative/fluid/pkg/common"
 	"github.com/fluid-cloudnative/fluid/pkg/utils"
 )
 
@@ -38,7 +39,7 @@ func (j *JuiceFSEngine) transform(runtime *datav1alpha1.JuiceFSRuntime) (value *
 	value.FullnameOverride = j.name
 
 	// transform the workers
-	err = j.transformWorkers(runtime, dataset, value)
+	err = j.transformWorkers(runtime, value)
 	if err != nil {
 		return
 	}
@@ -52,15 +53,29 @@ func (j *JuiceFSEngine) transform(runtime *datav1alpha1.JuiceFSRuntime) (value *
 	return
 }
 
-func (j *JuiceFSEngine) transformWorkers(runtime *datav1alpha1.JuiceFSRuntime, dataset *datav1alpha1.Dataset, value *JuiceFS) (err error) {
+func (j *JuiceFSEngine) transformWorkers(runtime *datav1alpha1.JuiceFSRuntime, value *JuiceFS) (err error) {
 	value.Worker = Worker{}
 
 	labelName := j.getCommonLabelName()
+
+	image := runtime.Spec.JuiceFSVersion.Image
+	imageTag := runtime.Spec.JuiceFSVersion.ImageTag
+	imagePullPolicy := runtime.Spec.JuiceFSVersion.ImagePullPolicy
+
+	value.Image, value.ImageTag, value.ImagePullPolicy = j.parseRuntimeImage(image, imageTag, imagePullPolicy)
 
 	if len(value.Worker.NodeSelector) == 0 {
 		value.Worker.NodeSelector = map[string]string{}
 	}
 	value.Worker.NodeSelector[labelName] = "true"
+
+	if len(runtime.Spec.TieredStore.Levels) > 0 {
+		cacheDir := runtime.Spec.TieredStore.Levels[0].Path
+		if runtime.Spec.TieredStore.Levels[0].MediumType != common.Memory {
+			cacheDir = "memory"
+			value.Worker.CacheDir = cacheDir
+		}
+	}
 
 	j.transformResourcesForWorker(runtime, value)
 	return
