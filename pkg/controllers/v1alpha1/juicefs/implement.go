@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	runtimeType                  = common.JUICEFS_RUNTIME
+	runtimeType                  = common.JuiceFSRuntime
 	runtimeResourceFinalizerName = "juicefs-runtime-controller-finalizer"
 )
 

@@ -211,3 +211,36 @@ func TestJuiceFileUtils_GetMetric(t *testing.T) {
 	}
 	wrappedUnhookExec()
 }
+
+func TestJuiceFileUtils_DeleteDir(t *testing.T) {
+	type fields struct {
+		podName   string
+		namespace string
+		container string
+		log       logr.Logger
+	}
+	type args struct {
+		dir string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			j := JuiceFileUtils{
+				podName:   tt.fields.podName,
+				namespace: tt.fields.namespace,
+				container: tt.fields.container,
+				log:       tt.fields.log,
+			}
+			if err := j.DeleteDir(tt.args.dir); (err != nil) != tt.wantErr {
+				t.Errorf("DeleteDir() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

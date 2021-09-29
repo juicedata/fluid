@@ -50,6 +50,9 @@ func (j *JuiceFSEngine) getRuntime() (*datav1alpha1.JuiceFSRuntime, error) {
 func (j *JuiceFSEngine) getFuseDaemonsetName() (dsName string) {
 	return j.name + "-fuse"
 }
+func (j *JuiceFSEngine) getWorkerDaemonsetName() (dsName string) {
+	return j.name + "-worker"
+}
 
 func (j *JuiceFSEngine) getDaemonset(name string, namespace string) (fuse *appsv1.DaemonSet, err error) {
 	fuse = &appsv1.DaemonSet{}
@@ -103,9 +106,9 @@ func (j *JuiceFSEngine) parseFuseImage(image string, tag string, imagePullPolicy
 	}
 
 	if len(image) == 0 {
-		image = docker.GetImageRepoFromEnv(common.JUICEFS_FUSE_IMAGE_ENV)
+		image = docker.GetImageRepoFromEnv(common.JuiceFSFuseImageEnv)
 		if len(image) == 0 {
-			fuseImageInfo := strings.Split(common.DEFAULT_JUICEFS_FUSE_IMAGE, ":")
+			fuseImageInfo := strings.Split(common.DefaultJuiceFSFuseImage, ":")
 			if len(fuseImageInfo) < 1 {
 				panic("invalid default juicefs fuse image!")
 			} else {
@@ -117,7 +120,7 @@ func (j *JuiceFSEngine) parseFuseImage(image string, tag string, imagePullPolicy
 	if len(tag) == 0 {
 		tag = docker.GetImageTagFromEnv(common.JINDO_FUSE_IMAGE_ENV)
 		if len(tag) == 0 {
-			fuseImageInfo := strings.Split(common.DEFAULT_JUICEFS_FUSE_IMAGE, ":")
+			fuseImageInfo := strings.Split(common.DefaultJuiceFSFuseImage, ":")
 			if len(fuseImageInfo) < 2 {
 				panic("invalid default init image!")
 			} else {
@@ -139,9 +142,9 @@ func (j *JuiceFSEngine) getMountPoint() (mountPath string) {
 func getMountRoot() (path string) {
 	path, err := utils.GetMountRoot()
 	if err != nil {
-		path = "/" + common.JUICEFS_RUNTIME
+		path = "/" + common.JuiceFSRuntime
 	} else {
-		path = path + "/" + common.JUICEFS_RUNTIME
+		path = path + "/" + common.JuiceFSRuntime
 	}
 	return
 }

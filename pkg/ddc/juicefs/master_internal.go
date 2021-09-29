@@ -30,7 +30,7 @@ import (
 // setup fuse
 func (j *JuiceFSEngine) setupMasterInternal() (err error) {
 	var (
-		chartName = utils.GetChartsDirectory() + "/" + common.JUICEFS_CHART
+		chartName = utils.GetChartsDirectory() + "/" + common.JuiceFSChart
 	)
 
 	runtime, err := j.getRuntime()

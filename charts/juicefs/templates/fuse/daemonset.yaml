@@ -40,6 +40,7 @@ spec:
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
       {{- end }}
+      {{- if .Values.fuse.format.enable }}
       initContainers:
         - name: format
           image: {{ .Values.fuse.image }}:{{ .Values.fuse.imageTag }}
@@ -47,44 +48,45 @@ spec:
           command:
             - sh
             - -c
-            - "/usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME} --no-update"
+            - "/usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME}"
           securityContext:
             privileged: true
           env:
             - name: NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret.name }}
+                  name: {{ .Values.fuse.format.nameSecret }}
                   key: name
             - name: ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret.name }}
+                  name: {{ .Values.fuse.format.accesskeySecret }}
                   key: access-key
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret.name }}
+                  name: {{ .Values.fuse.format.secretkeySecret }}
                   key: secret-key
             - name: BUCKET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret.name }}
+                  name: {{ .Values.fuse.format.bucketSecret }}
                   key: bucket
             - name: META_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret.name }}
+                  name: {{ .Values.fuse.format.metaurlSecret }}
                   key: metaurl
             - name: STORAGE
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret.name }}
+                  name: {{ .Values.fuse.format.storageSecret }}
                   key: storage
           volumeMounts:
           - mountPath: /root/.juicefs
             mountPropagation: Bidirectional
             name: jfs-root-dir
+      {{- end}}
       containers:
         - name: juicefs-fuse
           image: {{ .Values.fuse.image }}:{{ .Values.fuse.imageTag }}

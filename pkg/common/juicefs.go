@@ -18,19 +18,23 @@ package common
 
 // Runtime for Juice
 const (
-	JUICEFS_RUNTIME = "juicefs"
+	JuiceFSRuntime = "juicefs"
 
-	JUICEFS_MOUNT_TYPE = "JuiceFS"
+	JuiceFSMountType = "JuiceFS"
 
-	JUICEFS_NAMESPACE = "juicefs-system"
+	JuiceFSNamespace = "juicefs-system"
 
-	JUICEFS_CHART = JUICEFS_RUNTIME
+	JuiceFSChart = JuiceFSRuntime
 
-	JUICEFS_FUSE_IMAGE_ENV = "JUICEFS_FUSE_IMAGE_ENV"
+	JuiceFSFuseImageEnv = "JUICEFS_FUSE_IMAGE_ENV"
 
-	DEFAULT_JUICEFS_FUSE_IMAGE = "juicedata/juicefs-csi-driver:v0.10.5"
+	DefaultJuiceFSFuseImage = "juicedata/juicefs-csi-driver:v0.10.5"
 
 	JuiceFSMountPath = "/bin/mount.juicefs"
 
 	JuiceFSFuseContainer = "juicefs-fuse"
+
+	JuiceFSWorkerContainer = "juicefs-worker"
+
+	JuiceFSDefaultCacheDir = "/var/jfsCache"
 )

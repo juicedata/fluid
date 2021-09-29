@@ -76,3 +76,21 @@ func (j *JuiceFSEngine) transformResourcesForFuse(runtime *datav1alpha1.JuiceFSR
 	}
 
 }
+
+func (j *JuiceFSEngine) transformResourcesForWorker(runtime *datav1alpha1.JuiceFSRuntime, value *JuiceFS) {
+	if runtime.Spec.Worker.Resources.Limits == nil {
+		j.Log.Info("skip setting memory limit")
+		return
+	}
+
+	if _, found := runtime.Spec.Worker.Resources.Limits[corev1.ResourceMemory]; !found {
+		j.Log.Info("skip setting memory limit")
+		return
+	}
+
+	value.Worker.Resources = utils.TransformRequirementsToResources(runtime.Spec.Worker.Resources)
+
+	if quantity, exists := runtime.Spec.Worker.Resources.Limits[corev1.ResourceMemory]; exists && !quantity.IsZero() {
+		value.Worker.Resources.Limits[corev1.ResourceMemory] = quantity.String()
+	}
+}

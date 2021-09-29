@@ -23,4 +23,8 @@ const (
 	BlockCacheHitBytes  = "juicefs_blockcache_hit_bytes"
 	BlockCacheMissBytes = "juicefs_blockcache_miss_bytes"
 	UsedSpace           = "juicefs_used_space"
+
+	PodRoleType = "role"
+
+	WorkerPodRole = "juicefs-worker"
 )

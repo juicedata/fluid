@@ -17,6 +17,8 @@ limitations under the License.
 package juicefs
 
 import (
+	"github.com/fluid-cloudnative/fluid/pkg/common"
+	"github.com/fluid-cloudnative/fluid/pkg/ddc/juicefs/operations"
 	"github.com/fluid-cloudnative/fluid/pkg/utils/helm"
 )
 
@@ -56,6 +58,34 @@ func (j *JuiceFSEngine) destroyMaster() (err error) {
 
 // cleanupCache cleans up the cache
 func (j *JuiceFSEngine) cleanupCache() (err error) {
-	// todo
-	return
+	runtime, err := j.getRuntime()
+	j.Log.Info("get runtime info", "runtime", runtime)
+	if err != nil {
+		return err
+	}
+
+	cacheDir := common.JuiceFSDefaultCacheDir
+	if len(runtime.Spec.TieredStore.Levels) != 0 {
+		if runtime.Spec.TieredStore.Levels[0].MediumType == common.Memory {
+			j.Log.Info("cache in memory, skip clean up cache")
+			return
+		}
+		cacheDir = runtime.Spec.TieredStore.Levels[0].Path
+	}
+
+	workerName := j.getWorkerDaemonsetName()
+	pods, err := j.getRunningPodsOfDaemonset(workerName, j.namespace)
+	if err != nil {
+		return err
+	}
+
+	for _, pod := range pods {
+		fileUtils := operations.NewJuiceFileUtils(pod.Name, common.JuiceFSWorkerContainer, j.namespace, j.Log)
+
+		err := fileUtils.DeleteDir(cacheDir)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
