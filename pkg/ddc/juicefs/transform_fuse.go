@@ -17,7 +17,6 @@ limitations under the License.
 package juicefs
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
@@ -28,7 +27,7 @@ import (
 
 func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, dataset *datav1alpha1.Dataset, value *JuiceFS) (err error) {
 	value.Fuse = Fuse{}
-	value.Fuse.Format = Format{Enable: true}
+	value.Fuse.Prepare = Prepare{}
 
 	if len(dataset.Spec.Mounts) <= 0 {
 		return errors.New("do not assign mount point")
@@ -49,30 +48,23 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 		}
 
 		switch key {
-		case "volume_name":
-			value.Fuse.Format.NameSecret = secretKeyRef.Name
-		case "meta_url":
-			value.Fuse.Format.MetaUrlSecret = secretKeyRef.Name
+		case "name":
+			value.Fuse.Prepare.NameSecret = secretKeyRef.Name
+		case "metaurl":
+			value.Fuse.Prepare.MetaUrlSecret = secretKeyRef.Name
 			v, ok := secret.Data[secretKeyRef.Key]
 			if !ok {
-				return errors.New(fmt.Sprintf("can't get metaurl from secret %s", j.name))
+				return errors.New(fmt.Sprintf("can't get metaurl from secret %s", secret.Name))
 			}
-			sourceByte, err := base64.StdEncoding.DecodeString(string(v))
-			if err != nil {
-				j.Log.Info("can't decode metaurl in secret",
-					"namespace", j.namespace, "name", j.name,
-					"secretName", secretKeyRef.Name)
-				return err
-			}
-			source = string(sourceByte)
-		case "access_key":
-			value.Fuse.Format.AccessKeySecret = secretKeyRef.Name
-		case "secret_key":
-			value.Fuse.Format.SecretKeySecret = secretKeyRef.Name
+			source = string(v)
+		case "access-key":
+			value.Fuse.Prepare.AccessKeySecret = secretKeyRef.Name
+		case "secret-key":
+			value.Fuse.Prepare.SecretKeySecret = secretKeyRef.Name
 		case "storage":
-			value.Fuse.Format.StorageSecret = secretKeyRef.Name
+			value.Fuse.Prepare.StorageSecret = secretKeyRef.Name
 		case "bucket":
-			value.Fuse.Format.BucketSecret = secretKeyRef.Name
+			value.Fuse.Prepare.BucketSecret = secretKeyRef.Name
 		}
 	}
 
@@ -82,29 +74,30 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	if !strings.Contains(source, "://") {
 		source = "redis://" + source
 	}
-	if value.Fuse.Format.BucketSecret == "" || value.Fuse.Format.StorageSecret == "" {
-		value.Fuse.Format.Enable = false
-	}
+	value.Fuse.MetaUrl = source
 
 	image := runtime.Spec.Fuse.Image
 	tag := runtime.Spec.Fuse.ImageTag
 	imagePullPolicy := runtime.Spec.Fuse.ImagePullPolicy
 
+	subPath := ""
+	if mount.Path != "" {
+		subPath = mount.Path
+	} else {
+		subPath = mount.Name
+	}
 	value.Fuse.Image, value.Fuse.ImageTag, value.ImagePullPolicy = j.parseFuseImage(image, tag, imagePullPolicy)
 	value.Fuse.MountPath = j.getMountPoint()
 	value.Fuse.NodeSelector = map[string]string{}
 	value.Fuse.HostMountPath = j.getMountPoint()
+	value.Fuse.Prepare.SubPath = subPath
 
 	mountArgs := []string{common.JuiceFSMountPath, source, value.Fuse.MountPath}
 	options := []string{"metrics=0.0.0.0:9567"}
 	for k, v := range mount.Options {
 		options = append(options, fmt.Sprintf("%s=%s", k, v))
 	}
-	if mount.Path == "" {
-		options = append(options, fmt.Sprintf("subpath=%s", mount.Path))
-	} else {
-		options = append(options, fmt.Sprintf("subpath=%s", mount.Name))
-	}
+	options = append(options, fmt.Sprintf("subdir=%s", subPath))
 	if len(runtime.Spec.TieredStore.Levels) > 0 {
 		cacheDir := runtime.Spec.TieredStore.Levels[0].Path
 		if runtime.Spec.TieredStore.Levels[0].MediumType == common.Memory {

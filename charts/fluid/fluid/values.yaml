@@ -60,7 +60,6 @@ runtime:
     fuse:
       image: ccr.ccs.tencentyun.com/goosefs/goosefs-fuse:v1.0.1
   juicefs:
-    portRange: 32001-38000
     enabled: false
     controller:
       image: fluidcloudnative/juicefsruntime-controller:v0.7.0-90f28ea

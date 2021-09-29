@@ -40,53 +40,53 @@ spec:
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
       {{- end }}
-      {{- if .Values.fuse.format.enable }}
       initContainers:
-        - name: format
+        - name: prepare
           image: {{ .Values.fuse.image }}:{{ .Values.fuse.imageTag }}
           imagePullPolicy: {{ .Values.fuse.imagePullPolicy }}
           command:
             - sh
             - -c
-            - "/usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME}"
+            - "sh /root/prepare/prepare-subpath.sh"
           securityContext:
             privileged: true
           env:
             - name: NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.fuse.format.nameSecret }}
+                  name: {{ .Values.fuse.prepare.nameSecret }}
                   key: name
             - name: ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.fuse.format.accesskeySecret }}
+                  name: {{ .Values.fuse.prepare.accesskeySecret }}
                   key: access-key
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.fuse.format.secretkeySecret }}
+                  name: {{ .Values.fuse.prepare.secretkeySecret }}
                   key: secret-key
             - name: BUCKET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.fuse.format.bucketSecret }}
+                  name: {{ .Values.fuse.prepare.bucketSecret }}
                   key: bucket
             - name: META_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.fuse.format.metaurlSecret }}
+                  name: {{ .Values.fuse.prepare.metaurlSecret }}
                   key: metaurl
             - name: STORAGE
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.fuse.format.storageSecret }}
+                  name: {{ .Values.fuse.prepare.storageSecret }}
                   key: storage
           volumeMounts:
           - mountPath: /root/.juicefs
             mountPropagation: Bidirectional
             name: jfs-root-dir
-      {{- end}}
+          - mountPath: /root/prepare
+            name: prepare
       containers:
         - name: juicefs-fuse
           image: {{ .Values.fuse.image }}:{{ .Values.fuse.imageTag }}
@@ -105,7 +105,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- if .Values.fuse.command }}
-          command: ["sh", "-c", {{ .Values.fuse.command }}]
+          command: ["sh", "-c", "{{ .Values.fuse.command }}"]
           {{- end }}
           env:
           - name: JFS_FOREGROUND
@@ -146,4 +146,30 @@ spec:
             type: DirectoryOrCreate
         - name: jfs-root-dir
           emptyDir: {}
+        - name: prepare
+          configMap:
+            name: juicefs-prepare-subpath
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: juicefs-prepare-subpath
+  labels:
+    app: {{ template "juicefs.name" . }}
+    chart: {{ template "juicefs.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  prepare-subpath.sh: |
+    #!/bin/bash
+
+    /usr/local/bin/juicefs format --storage=${STORAGE} --bucket=${BUCKET} --access-key=${ACCESS_KEY} --secret-key=${SECRET_KEY} ${META_URL} ${NAME}
+
+    /usr/local/bin/juicefs mount -d {{ .Values.fuse.metaUrl }} /mnt/jfs
+    if [ ! -d /mnt/jfs/{{ .Values.fuse.subPath }} ]; then
+      mkdir /mnt/jfs/{{ .Values.fuse.subPath }}
+    fi;
+    umount /mnt/jfs
+
 {{- end }}

@@ -33,12 +33,12 @@ spec:
       {{- end }}
       {{- if .Values.tolerations }}
       tolerations:
-      {{ toYaml .Values.tolerations | indent 8 }}
+{{ toYaml .Values.tolerations | indent 8 }}
       {{- end }}
       containers:
         - name: juicefs-worker
-          image: {{ .Values.worker.image }}:{{ .Values.worker.imageTag }}
-          imagePullPolicy: {{ .Values.worker.imagePullPolicy }}
+          image: {{ .Values.image }}:{{ .Values.imageTag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
           {{- if .Values.worker.resources  }}
           resources:
             {{- if .Values.worker.resources.limits }}
@@ -53,12 +53,16 @@ spec:
             {{- end }}
           {{- end }}
           command: ["sh", "-c", "sleep infinity"]
+          {{- if .Values.worker.cacheDir }}
           volumeMounts:
             - name: cache-dir
               mountPath: {{ .Values.worker.cacheDir }}
+          {{- end }}
       restartPolicy: Always
+      {{- if .Values.worker.cacheDir }}
       volumes:
         - name: cache-dir
           hostPath:
             path: {{ .Values.worker.cacheDir}}
             type: DirectoryOrCreate
+      {{- end }}

@@ -100,6 +100,38 @@ func (j *JuiceFSEngine) getSecret(name string, namespace string) (fuse *corev1.S
 	return fuse, err
 }
 
+func (j *JuiceFSEngine) parseRuntimeImage(image string, tag string, imagePullPolicy string) (string, string, string) {
+	if len(imagePullPolicy) == 0 {
+		imagePullPolicy = common.DefaultImagePullPolicy
+	}
+
+	if len(image) == 0 {
+		image = docker.GetImageRepoFromEnv(common.JuiceFSFuseImageEnv)
+		if len(image) == 0 {
+			runtimeImageInfo := strings.Split(common.DefaultJuiceFSRuntimeImage, ":")
+			if len(runtimeImageInfo) < 1 {
+				panic("invalid default juicefs runtime image!")
+			} else {
+				image = runtimeImageInfo[0]
+			}
+		}
+	}
+
+	if len(tag) == 0 {
+		tag = docker.GetImageTagFromEnv(common.JuiceFSFuseImageEnv)
+		if len(tag) == 0 {
+			runtimeImageInfo := strings.Split(common.DefaultJuiceFSRuntimeImage, ":")
+			if len(runtimeImageInfo) < 2 {
+				panic("invalid default juicefs runtime image!")
+			} else {
+				tag = runtimeImageInfo[1]
+			}
+		}
+	}
+
+	return image, tag, imagePullPolicy
+}
+
 func (j *JuiceFSEngine) parseFuseImage(image string, tag string, imagePullPolicy string) (string, string, string) {
 	if len(imagePullPolicy) == 0 {
 		imagePullPolicy = common.DefaultImagePullPolicy
