@@ -18,6 +18,7 @@ package juicefs
 
 import (
 	"fmt"
+
 	"github.com/fluid-cloudnative/fluid/pkg/common"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/juicefs/operations"
 	"github.com/fluid-cloudnative/fluid/pkg/utils"
@@ -138,6 +139,7 @@ func (j *JuiceFSEngine) mountUFS() (err error) {
 	return nil
 }
 
+// JuiceFSEngine hasn't support UpdateOnUFSChange
 func (j JuiceFSEngine) ShouldUpdateUFS() (ufsToUpdate *utils.UFSToUpdate) {
 	return nil
 }
