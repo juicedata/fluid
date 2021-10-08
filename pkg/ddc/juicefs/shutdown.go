@@ -42,6 +42,16 @@ func (j JuiceFSEngine) Shutdown() (err error) {
 			return
 		}
 	}
+
+	if MetadataSyncDoneCh != nil {
+		close(MetadataSyncDoneCh)
+	}
+
+	_, err = j.destroyWorkers(-1)
+	if err != nil {
+		return
+	}
+
 	err = j.destroyMaster()
 	if err != nil {
 		return

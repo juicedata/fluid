@@ -33,11 +33,11 @@ func (j JuiceFSEngine) FreeStorageBytes() (int64, error) {
 }
 
 func (j JuiceFSEngine) TotalStorageBytes() (int64, error) {
-	panic("implement me")
+	return j.totalStorageBytesInternal()
 }
 
 func (j JuiceFSEngine) TotalFileNums() (int64, error) {
-	panic("implement me")
+	return j.totalFileNumsInternal()
 }
 
 func (j JuiceFSEngine) ShouldCheckUFS() (should bool, err error) {
