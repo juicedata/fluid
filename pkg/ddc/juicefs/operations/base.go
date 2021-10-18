@@ -207,7 +207,7 @@ func (j JuiceFileUtils) GetMetric() (metrics string, err error) {
 		stderr  string
 	)
 
-	stdout, stderr, err = j.exec(command, true)
+	stdout, stderr, err = j.exec(command, false)
 	if err != nil {
 		err = fmt.Errorf("execute command %v with expectedErr: %v stdout %s and stderr %s", command, err, stdout, stderr)
 		return
