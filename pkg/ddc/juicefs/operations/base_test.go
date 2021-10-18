@@ -213,34 +213,37 @@ func TestJuiceFileUtils_GetMetric(t *testing.T) {
 }
 
 func TestJuiceFileUtils_DeleteDir(t *testing.T) {
-	type fields struct {
-		podName   string
-		namespace string
-		container string
-		log       logr.Logger
+	ExecCommon := func(a JuiceFileUtils, command []string, verbose bool) (stdout string, stderr string, err error) {
+		return "juicefs rmr success", "", nil
 	}
-	type args struct {
-		dir string
+	ExecErr := func(a JuiceFileUtils, command []string, verbose bool) (stdout string, stderr string, err error) {
+		return "", "", errors.New("fail to run the command")
 	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
+	wrappedUnhookExec := func() {
+		err := gohook.UnHook(JuiceFileUtils.exec)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			j := JuiceFileUtils{
-				podName:   tt.fields.podName,
-				namespace: tt.fields.namespace,
-				container: tt.fields.container,
-				log:       tt.fields.log,
-			}
-			if err := j.DeleteDir(tt.args.dir); (err != nil) != tt.wantErr {
-				t.Errorf("DeleteDir() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
+
+	err := gohook.Hook(JuiceFileUtils.exec, ExecErr, nil)
+	if err != nil {
+		t.Fatal(err.Error())
 	}
+	a := JuiceFileUtils{}
+	err = a.DeleteDir("")
+	if err == nil {
+		t.Error("check failure, want err, got nil")
+	}
+	wrappedUnhookExec()
+
+	err = gohook.Hook(JuiceFileUtils.exec, ExecCommon, nil)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	err = a.DeleteDir("")
+	if err != nil {
+		t.Errorf("check failure, want nil, got err: %v", err)
+	}
+	wrappedUnhookExec()
 }
