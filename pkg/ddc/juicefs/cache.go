@@ -18,6 +18,8 @@ package juicefs
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/fluid-cloudnative/fluid/pkg/utils"
 )
 
@@ -49,7 +51,7 @@ func (j *JuiceFSEngine) queryCacheStatus() (states cacheStates, err error) {
 	}
 
 	// caches = total cache / fuse pod num
-	states.cached = utils.BytesSize(float64(totalCache) * 100.0 / float64(len(podMetrics)))
+	states.cached = utils.BytesSize(float64(totalCache) / float64(len(podMetrics)))
 
 	// cachePercent = cached / total space
 	if totalSpace != 0 {
@@ -73,5 +75,13 @@ func (j *JuiceFSEngine) queryCacheStatus() (states cacheStates, err error) {
 	} else {
 		states.cacheThroughputRatio = "0.0%"
 	}
+
+	//cacheCapacity = cachesize * numberworker
+	cachesize, err := strconv.ParseUint(j.runtime.Spec.TieredStore.Levels[0].Quota.String(), 10, 64)
+	if err != nil {
+		return
+	}
+	states.cacheCapacity = utils.BytesSize(float64(1024 * 1024 * cachesize * uint64(len(pods))))
+
 	return
 }

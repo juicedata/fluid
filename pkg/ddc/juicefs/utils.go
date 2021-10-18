@@ -19,6 +19,9 @@ package juicefs
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
 	"github.com/fluid-cloudnative/fluid/pkg/common"
 	"github.com/fluid-cloudnative/fluid/pkg/utils"
@@ -28,9 +31,15 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
 	options "sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
-	"strings"
 )
+
+func (j *JuiceFSEngine) getDataSetFileNum() (string, error) {
+	fileCount, err := j.TotalFileNums()
+	if err != nil {
+		return "", err
+	}
+	return strconv.FormatInt(fileCount, 10), err
+}
 
 // getRuntime gets the juicefs runtime
 func (j *JuiceFSEngine) getRuntime() (*datav1alpha1.JuiceFSRuntime, error) {
