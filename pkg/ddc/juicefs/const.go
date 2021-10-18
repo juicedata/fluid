@@ -27,4 +27,7 @@ const (
 	PodRoleType = "role"
 
 	WorkerPodRole = "juicefs-worker"
+
+	METADATA_SYNC_NOT_DONE_MSG                = "[Calculating]"
+	CHECK_METADATA_SYNC_DONE_TIMEOUT_MILLISEC = 500
 )
