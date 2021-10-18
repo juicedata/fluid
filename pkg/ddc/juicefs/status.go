@@ -64,8 +64,12 @@ func (j *JuiceFSEngine) CheckAndUpdateRuntimeStatus() (ready bool, err error) {
 		}
 
 		runtimeToUpdate.Status.CacheStates[common.CacheCapacity] = states.cacheCapacity
-		runtimeToUpdate.Status.CacheStates[common.CachedPercentage] = states.cachedPercentage
-		runtimeToUpdate.Status.CacheStates[common.Cached] = states.cached
+
+		// Todo:show this infomathion when complete dataload function
+		//runtimeToUpdate.Status.CacheStates[common.CachedPercentage] = states.cachedPercentage
+		//runtimeToUpdate.Status.CacheStates[common.Cached] = states.cached
+		runtimeToUpdate.Status.CacheStates[common.CachedPercentage] = "-"
+		runtimeToUpdate.Status.CacheStates[common.Cached] = "-"
 		// 1. Update cache hit ratio
 		runtimeToUpdate.Status.CacheStates[common.CacheHitRatio] = states.cacheHitRatio
 

@@ -87,7 +87,7 @@ func (j JuiceFileUtils) IsExist(juiceSubPath string) (found bool, err error) {
 	return
 }
 
-// The count of the Alluxio Filesystem
+// The count of the JuiceFS Filesystem
 func (j JuiceFileUtils) Count(juiceSubPath string) (total int64, err error) {
 	var (
 		command = []string{"du", "-sb", juiceSubPath}
@@ -128,11 +128,8 @@ func (j JuiceFileUtils) Count(juiceSubPath string) (total int64, err error) {
 // use "ls -lR  xxx|grep "^-"| wc -l"
 func (j JuiceFileUtils) GetFileCount(juiceSubPath string) (fileCount int64, err error) {
 	var (
-		//command = []string{"ls", "-lR", juiceSubPath, "|", "grep", `"^-"`, "|", "wc", "-l"}
-		//command = []string{"find", juiceSubPath, "-type", "f", "|", "wc", "-l"}
-
-		//command = []string{"du", "-ah", juiceSubPath, "|", "grep", `"^-"`, "|", "wc", "-l"}
-		strs    = "du -ah juiceSubPath |grep ^- |wc -l "
+		//strs    = "du -ah juiceSubPath |grep ^- |wc -l "
+		strs    = fmt.Sprintf("du -ah %s |grep ^- |wc -l ", juiceSubPath)
 		command = []string{"bash", "-c", strs}
 		stdout  string
 		stderr  string

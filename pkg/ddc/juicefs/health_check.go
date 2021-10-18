@@ -80,7 +80,6 @@ func (j *JuiceFSEngine) checkWorkersHealthy() (err error) {
 
 		if workers.Status.NumberUnavailable > 0 ||
 			(workers.Status.DesiredNumberScheduled > 0 && workers.Status.NumberAvailable == 0) {
-			// if workers.Status.NumberReady != workers.Status.DesiredNumberScheduled {
 			if len(runtimeToUpdate.Status.Conditions) == 0 {
 				runtimeToUpdate.Status.Conditions = []data.RuntimeCondition{}
 			}
@@ -97,12 +96,7 @@ func (j *JuiceFSEngine) checkWorkersHealthy() (err error) {
 					utils.UpdateRuntimeCondition(runtimeToUpdate.Status.Conditions,
 						cond)
 			}
-
 			runtimeToUpdate.Status.WorkerPhase = data.RuntimePhaseNotReady
-
-			// runtimeToUpdate.Status.DesiredWorkerNumberScheduled
-			// runtimeToUpdate.Status.WorkerPhase = data.RuntimePhaseNotReady
-
 			j.Log.Error(err, "the workers are not ready")
 		} else {
 			healthy = true
@@ -116,9 +110,9 @@ func (j *JuiceFSEngine) checkWorkersHealthy() (err error) {
 					utils.UpdateRuntimeCondition(runtimeToUpdate.Status.Conditions,
 						cond)
 			}
-			// runtimeToUpdate.Status.WorkerPhase = data.RuntimePhaseReady
+
 		}
-		// runtimeToUpdate.Status.DesiredWorkerNumberScheduled = int32(workers.Status.DesiredNumberScheduled)
+
 		runtimeToUpdate.Status.WorkerNumberReady = int32(workers.Status.NumberReady)
 		runtimeToUpdate.Status.WorkerNumberAvailable = int32(workers.Status.NumberAvailable)
 		if !reflect.DeepEqual(runtime.Status, runtimeToUpdate.Status) {
@@ -166,7 +160,6 @@ func (j *JuiceFSEngine) checkFuseHealthy() (err error) {
 
 		runtimeToUpdate := runtime.DeepCopy()
 
-		// if fuses.Status.NumberReady != fuses.Status.DesiredNumberScheduled {
 		if fuses.Status.NumberUnavailable > 0 ||
 			(fuses.Status.DesiredNumberScheduled > 0 && fuses.Status.NumberAvailable == 0) {
 			if len(runtimeToUpdate.Status.Conditions) == 0 {

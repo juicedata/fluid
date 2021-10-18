@@ -171,7 +171,7 @@ func (j *JuiceFSEngine) destroyWorkers(expectedWorkers int32) (currentWorkers in
 		}
 
 	} else {
-		// Destroy all workers. This is a subprocess during deletion of AlluxioRuntime
+		// Destroy all workers. This is a subprocess during deletion of JuiceFSRuntime
 		nodes = nodeList.Items
 	}
 

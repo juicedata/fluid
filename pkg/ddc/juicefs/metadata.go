@@ -159,25 +159,27 @@ func (j *JuiceFSEngine) syncMetadataInternal() (err error) {
 
 			j.Log.Info("Metadata Sync starts", "dataset namespace", j.namespace, "dataset name", j.name)
 
-			//podName, containerName := e.getMasterPodInfo()
-			//fileUtils := operations.NewAlluxioFileUtils(podName, containerName, e.namespace, e.Log)
 			dsName := j.getFuseDaemonsetName()
 			pods, err := j.getRunningPodsOfDaemonset(dsName, j.namespace)
 			if err != nil || len(pods) == 0 {
 				return
 			}
-			fileUtils := operations.NewJuiceFileUtils(pods[0].Name, common.JuiceFSFuseContainer, j.namespace, j.Log)
+			for _, pod := range pods {
+				fileUtils := operations.NewJuiceFileUtils(pod.Name, common.JuiceFSFuseContainer, j.namespace, j.Log)
 
-			// load metadata
-			// ls -al /runtime-mnt/juicefs/namespace/name/juicefs-fuse/
-			err = fileUtils.LoadMetadataWithoutTimeout(j.getMountPoint())
-			if err != nil {
-				j.Log.Error(err, "LoadMetadata failed when syncing metadata", "name", j.name, "namespace", j.namespace)
-				result.Err = err
-				result.Done = false
-				resultChan <- result
-				return
+				// load metadata
+				// ls -al /runtime-mnt/juicefs/namespace/name/juicefs-fuse/
+				err = fileUtils.LoadMetadataWithoutTimeout(j.getMountPoint())
+				if err != nil {
+					j.Log.Error(err, "LoadMetadata failed when syncing metadata", "name", j.name, "namespace", j.namespace)
+					result.Err = err
+					result.Done = false
+					resultChan <- result
+					return
+				}
+
 			}
+
 			result.Done = true
 
 			datasetUFSTotalBytes, err := j.TotalStorageBytes()
@@ -188,7 +190,6 @@ func (j *JuiceFSEngine) syncMetadataInternal() (err error) {
 				result.UfsTotal = utils.BytesSize(float64(datasetUFSTotalBytes))
 			}
 			fileNum, err := j.getDataSetFileNum()
-			//fileNum, err := "", nil
 			if err != nil {
 				j.Log.Error(err, "Get File Num failed when syncing metadata", "name", j.name, "namespace", j.namespace)
 				result.Done = false

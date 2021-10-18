@@ -67,7 +67,6 @@ func (j *JuiceFSEngine) UpdateDatasetStatus(phase datav1alpha1.DatasetPhase) (er
 			cond)
 
 		datasetToUpdate.Status.CacheStates = runtime.Status.CacheStates
-		// datasetToUpdate.Status.CacheStates =
 
 		if !reflect.DeepEqual(dataset.Status, datasetToUpdate.Status) {
 			err = j.Client.Status().Update(context.TODO(), datasetToUpdate)
@@ -106,7 +105,6 @@ func (j *JuiceFSEngine) UpdateCacheOfDataset() (err error) {
 		datasetToUpdate := dataset.DeepCopy()
 
 		datasetToUpdate.Status.CacheStates = runtime.Status.CacheStates
-		// datasetToUpdate.Status.CacheStates =
 
 		if len(datasetToUpdate.Status.Runtimes) == 0 {
 			datasetToUpdate.Status.Runtimes = []datav1alpha1.Runtime{}
