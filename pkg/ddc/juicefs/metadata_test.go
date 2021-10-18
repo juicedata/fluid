@@ -123,6 +123,21 @@ func TestSyncMetadata(t *testing.T) {
 				UfsTotal: "",
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "hadoop",
+				Namespace: "fluid",
+			},
+			Spec: datav1alpha1.DatasetSpec{
+				DataRestoreLocation: &datav1alpha1.DataRestoreLocation{
+					Path:     "local:///host1/erf",
+					NodeName: "test-node",
+				},
+			},
+			Status: datav1alpha1.DatasetStatus{
+				UfsTotal: "",
+			},
+		},
 	}
 
 	testObjs := []runtime.Object{}
@@ -166,7 +181,7 @@ func TestSyncMetadata(t *testing.T) {
 	}
 	err = engine.SyncMetadata()
 	if err != nil {
-		t.Errorf("fail to exec function RestoreMetadataInternal")
+		t.Errorf("fail to exec function RestoreMetadataInternal: %v", err)
 	}
 	wrappedUnhookQueryMetaDataInfoIntoFile()
 }

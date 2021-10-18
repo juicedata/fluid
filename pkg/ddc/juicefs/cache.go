@@ -76,12 +76,14 @@ func (j *JuiceFSEngine) queryCacheStatus() (states cacheStates, err error) {
 		states.cacheThroughputRatio = "0.0%"
 	}
 
-	//cacheCapacity = cachesize * numberworker
-	cachesize, err := strconv.ParseUint(j.runtime.Spec.TieredStore.Levels[0].Quota.String(), 10, 64)
-	if err != nil {
-		return
+	if len(j.runtime.Spec.TieredStore.Levels) != 0 {
+		//cacheCapacity = cachesize * numberworker
+		cachesize, e := strconv.ParseUint(j.runtime.Spec.TieredStore.Levels[0].Quota.String(), 10, 64)
+		if e != nil {
+			return
+		}
+		states.cacheCapacity = utils.BytesSize(float64(1024 * 1024 * cachesize * uint64(len(pods))))
 	}
-	states.cacheCapacity = utils.BytesSize(float64(1024 * 1024 * cachesize * uint64(len(pods))))
 
 	return
 }

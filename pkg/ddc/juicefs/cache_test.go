@@ -18,12 +18,19 @@ package juicefs
 
 import (
 	"github.com/brahma-adshonor/gohook"
+	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
+	"github.com/fluid-cloudnative/fluid/pkg/ddc/base"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"testing"
 )
 
 func TestJuiceFSEngine_queryCacheStatus(t *testing.T) {
+	runtimeInfo, err := base.BuildRuntimeInfo("juicefs", "fluid", "juicefs", datav1alpha1.TieredStore{})
+	if err != nil {
+		t.Errorf("fail to create the runtimeInfo with error %v", err)
+	}
+	runtimeInfo.SetupFuseDeployMode(false, nil)
 	ReturnOnePods := func(a JuiceFSEngine, dsName string, namespace string) (pods []corev1.Pod, err error) {
 		return []corev1.Pod{
 			{ObjectMeta: metav1.ObjectMeta{Name: "test1"}},
@@ -45,7 +52,7 @@ func TestJuiceFSEngine_queryCacheStatus(t *testing.T) {
 		}
 	}
 
-	err := gohook.Hook(JuiceFSEngine.getRunningPodsOfDaemonset, ReturnOnePods, nil)
+	err = gohook.Hook(JuiceFSEngine.getRunningPodsOfDaemonset, ReturnOnePods, nil)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -58,10 +65,17 @@ func TestJuiceFSEngine_queryCacheStatus(t *testing.T) {
 		namespace:   "default",
 		runtimeType: "JuiceFSRuntime",
 		Log:         nil,
+		runtimeInfo: runtimeInfo,
+		runtime: &datav1alpha1.JuiceFSRuntime{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test",
+				Namespace: "fluid",
+			},
+		},
 	}
 	want := cacheStates{
 		cacheCapacity:        "",
-		cached:               "37.81MiB",
+		cached:               "387.17KiB",
 		cachedPercentage:     "151.2%",
 		cacheHitRatio:        "100.0%",
 		cacheThroughputRatio: "100.0%",
