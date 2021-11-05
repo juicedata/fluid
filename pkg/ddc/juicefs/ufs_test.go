@@ -18,26 +18,69 @@ package juicefs
 import (
 	"testing"
 
+	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+
 	. "github.com/agiledragon/gomonkey"
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
 	"github.com/fluid-cloudnative/fluid/pkg/utils/kubeclient"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func mockExecCommandInContainerForTotalStorageBytes() (stdout string, stderr string, err error) {
-	r := `6706560319`
+	r := `6706560319    /tmp`
 	return r, "", nil
 }
 
 func mockExecCommandInContainerForTotalFileNums() (stdout string, stderr string, err error) {
-	r := `1,331,167`
+	r := `1331167`
 	return r, "", nil
 }
 
 func TestTotalStorageBytes(t *testing.T) {
+	daemonSet := &appsv1.DaemonSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-fuse",
+			Namespace: "fluid",
+		},
+		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"a": "b"},
+			},
+		},
+	}
+	var pod = &corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-fuse-xxx",
+			Namespace: "fluid",
+			Labels:    map[string]string{"a": "b"},
+		},
+		Status: corev1.PodStatus{
+			Phase: corev1.PodRunning,
+			Conditions: []corev1.PodCondition{{
+				Type:   corev1.PodReady,
+				Status: corev1.ConditionTrue,
+			}},
+		},
+	}
+	podList := &corev1.PodList{
+		Items: []corev1.Pod{*pod},
+	}
+	runtimeObjs := []runtime.Object{}
+	runtimeObjs = append(runtimeObjs, daemonSet, pod)
+	scheme := runtime.NewScheme()
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, daemonSet)
+	scheme.AddKnownTypes(corev1.SchemeGroupVersion, pod)
+	scheme.AddKnownTypes(corev1.SchemeGroupVersion, podList)
+	fakeClient := fake.NewFakeClientWithScheme(scheme, runtimeObjs...)
 	type fields struct {
-		runtime *datav1alpha1.JuiceFSRuntime
-		name    string
+		runtime   *datav1alpha1.JuiceFSRuntime
+		name      string
+		namespace string
 	}
 	tests := []struct {
 		name      string
@@ -48,9 +91,12 @@ func TestTotalStorageBytes(t *testing.T) {
 		{
 			name: "test",
 			fields: fields{
+				name:      "test",
+				namespace: "fluid",
 				runtime: &datav1alpha1.JuiceFSRuntime{
-					ObjectMeta: v1.ObjectMeta{
-						Name: "spark",
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test",
+						Namespace: "fluid",
 					},
 				},
 			},
@@ -61,8 +107,11 @@ func TestTotalStorageBytes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := JuiceFSEngine{
-				runtime: tt.fields.runtime,
-				name:    tt.fields.name,
+				runtime:   tt.fields.runtime,
+				name:      tt.fields.name,
+				namespace: tt.fields.namespace,
+				Client:    fakeClient,
+				Log:       log.NullLogger{},
 			}
 			patch1 := ApplyFunc(kubeclient.ExecCommandInContainer, func(podName string, containerName string, namespace string, cmd []string) (string, string, error) {
 				stdout, stderr, err := mockExecCommandInContainerForTotalStorageBytes()
@@ -82,9 +131,45 @@ func TestTotalStorageBytes(t *testing.T) {
 }
 
 func TestTotalFileNums(t *testing.T) {
+	daemonSet := &appsv1.DaemonSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-fuse",
+			Namespace: "fluid",
+		},
+		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"a": "b"},
+			},
+		},
+	}
+	var pod = &corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-fuse-xxx",
+			Namespace: "fluid",
+			Labels:    map[string]string{"a": "b"},
+		},
+		Status: corev1.PodStatus{
+			Phase: corev1.PodRunning,
+			Conditions: []corev1.PodCondition{{
+				Type:   corev1.PodReady,
+				Status: corev1.ConditionTrue,
+			}},
+		},
+	}
+	podList := &corev1.PodList{
+		Items: []corev1.Pod{*pod},
+	}
+	runtimeObjs := []runtime.Object{}
+	runtimeObjs = append(runtimeObjs, daemonSet, pod)
+	scheme := runtime.NewScheme()
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, daemonSet)
+	scheme.AddKnownTypes(corev1.SchemeGroupVersion, pod)
+	scheme.AddKnownTypes(corev1.SchemeGroupVersion, podList)
+	fakeClient := fake.NewFakeClientWithScheme(scheme, runtimeObjs...)
 	type fields struct {
-		runtime *datav1alpha1.JuiceFSRuntime
-		name    string
+		runtime   *datav1alpha1.JuiceFSRuntime
+		name      string
+		namespace string
 	}
 	tests := []struct {
 		name      string
@@ -95,8 +180,10 @@ func TestTotalFileNums(t *testing.T) {
 		{
 			name: "test",
 			fields: fields{
+				name:      "test",
+				namespace: "fluid",
 				runtime: &datav1alpha1.JuiceFSRuntime{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "spark",
 					},
 				},
@@ -108,8 +195,11 @@ func TestTotalFileNums(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := JuiceFSEngine{
-				runtime: tt.fields.runtime,
-				name:    tt.fields.name,
+				runtime:   tt.fields.runtime,
+				name:      tt.fields.name,
+				namespace: tt.fields.namespace,
+				Log:       log.NullLogger{},
+				Client:    fakeClient,
 			}
 			patch1 := ApplyFunc(kubeclient.ExecCommandInContainer, func(podName string, containerName string, namespace string, cmd []string) (string, string, error) {
 				stdout, stderr, err := mockExecCommandInContainerForTotalFileNums()
