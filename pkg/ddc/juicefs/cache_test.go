@@ -17,12 +17,13 @@ limitations under the License.
 package juicefs
 
 import (
+	"testing"
+
 	"github.com/brahma-adshonor/gohook"
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/base"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"testing"
 )
 
 func TestJuiceFSEngine_queryCacheStatus(t *testing.T) {
@@ -60,7 +61,7 @@ func TestJuiceFSEngine_queryCacheStatus(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	a := JuiceFSEngine{
+	a := &JuiceFSEngine{
 		name:        "test",
 		namespace:   "default",
 		runtimeType: "JuiceFSRuntime",

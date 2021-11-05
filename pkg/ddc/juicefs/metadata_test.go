@@ -185,3 +185,92 @@ func TestSyncMetadata(t *testing.T) {
 	}
 	wrappedUnhookQueryMetaDataInfoIntoFile()
 }
+
+/*func TestSyncMetadataInternal(t *testing.T) {
+	MetadataSyncDoneCh = nil
+	datasetInputs := []datav1alpha1.Dataset{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "spark",
+				Namespace: "fluid",
+			},
+			Spec: datav1alpha1.DatasetSpec{},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "hbase",
+				Namespace: "fluid",
+			},
+			Spec: datav1alpha1.DatasetSpec{},
+		},
+	}
+	testObjs := []runtime.Object{}
+	for _, datasetInput := range datasetInputs {
+		testObjs = append(testObjs, datasetInput.DeepCopy())
+	}
+	client := fake.NewFakeClientWithScheme(testScheme, testObjs...)
+
+	engines := []JuiceFSEngine{
+		{
+			name:      "hbase",
+			namespace: "fluid",
+			Client:    client,
+			Log:       log.NullLogger{},
+		},
+		{
+			name:      "spark",
+			namespace: "fluid",
+			Client:    client,
+			Log:       log.NullLogger{},
+		},
+	}
+
+	result := MetadataSyncResult{
+		StartTime: time.Now(),
+		UfsTotal:  "2GB",
+		Done:      true,
+		FileNum:   "5",
+	}
+
+	var testCase = []struct {
+		engine           JuiceFSEngine
+		expectedResult   bool
+		expectedUfsTotal string
+		expectedFileNum  string
+	}{
+		{
+			engine:           engines[0],
+			expectedUfsTotal: "2GB",
+			expectedFileNum:  "5",
+		},
+	}
+
+	for index, test := range testCase {
+		if index == 0 {
+			go func() {
+				MetadataSyncDoneCh <- result
+			}()
+		}
+
+		err := test.engine.syncMetadataInternal()
+		if err != nil {
+			t.Errorf("fail to exec the function with error %v", err)
+		}
+
+		key := types.NamespacedName{
+			Namespace: test.engine.namespace,
+			Name:      test.engine.name,
+		}
+
+		dataset := &datav1alpha1.Dataset{}
+		err = client.Get(context.TODO(), key, dataset)
+		if err != nil {
+			t.Errorf("failt to get the dataset with error %v", err)
+		}
+
+		if dataset.Status.UfsTotal != test.expectedUfsTotal || dataset.Status.FileNum != test.expectedFileNum {
+			t.Errorf("expected UfsTotal %s, get UfsTotal %s, expected FileNum %s, get FileNum %s", test.expectedUfsTotal, dataset.Status.UfsTotal, test.expectedFileNum, dataset.Status.FileNum)
+		}
+	}
+}
+*/

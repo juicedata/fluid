@@ -17,6 +17,9 @@ limitations under the License.
 package juicefs
 
 import (
+	"reflect"
+	"testing"
+
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/base"
 	"github.com/fluid-cloudnative/fluid/pkg/utils/kubeclient"
@@ -24,10 +27,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestJuiceFSEngine_ShouldSetupWorkers(t *testing.T) {
@@ -399,6 +400,35 @@ func TestJuiceFSEngine_CheckWorkersReady(t *testing.T) {
 			}
 			if gotReady != tt.wantReady {
 				t.Errorf("JuiceFSEngine.CheckWorkersReady() = %v, want %v", gotReady, tt.wantReady)
+			}
+		})
+	}
+}
+
+func TestJuiceFSEngine_GetWorkerSelectors(t *testing.T) {
+	type fields struct {
+		name string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "test0",
+			fields: fields{
+				name: "spark",
+			},
+			want: "app=juicefs,release=spark,role=juicefs-worker",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &JuiceFSEngine{
+				name: tt.fields.name,
+			}
+			if got := e.getWorkerSelectors(); got != tt.want {
+				t.Errorf("JuiceFSEngine.getWorkerSelectors() = %v, want %v", got, tt.want)
 			}
 		})
 	}
