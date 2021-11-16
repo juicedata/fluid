@@ -73,7 +73,7 @@ func TestTransformFuse(t *testing.T) {
 			dataset: &datav1alpha1.Dataset{
 				Spec: datav1alpha1.DatasetSpec{
 					Mounts: []datav1alpha1.Mount{{
-						MountPoint: "jfs:///mnt/test",
+						MountPoint: "juicefs:///mnt/test",
 						Name:       "test1",
 						Options: map[string]string{
 							"metaurl": "test1",
@@ -106,7 +106,7 @@ func TestTransformFuse(t *testing.T) {
 			dataset: &datav1alpha1.Dataset{
 				Spec: datav1alpha1.DatasetSpec{
 					Mounts: []datav1alpha1.Mount{{
-						MountPoint: "jfs:///mnt/test",
+						MountPoint: "juicefs:///mnt/test",
 						Name:       "test2",
 						Options:    map[string]string{"metaurl": "test2"},
 					}},
@@ -120,7 +120,7 @@ func TestTransformFuse(t *testing.T) {
 			dataset: &datav1alpha1.Dataset{
 				Spec: datav1alpha1.DatasetSpec{
 					Mounts: []datav1alpha1.Mount{{
-						MountPoint: "jfs:///mnt/test",
+						MountPoint: "juicefs:///mnt/test",
 						Name:       "test3",
 						Options:    map[string]string{"metaurl": "test3"},
 					}}}},
@@ -144,7 +144,7 @@ func TestTransformFuse(t *testing.T) {
 			dataset: &datav1alpha1.Dataset{
 				Spec: datav1alpha1.DatasetSpec{
 					Mounts: []datav1alpha1.Mount{{
-						MountPoint: "jfs:///mnt/test",
+						MountPoint: "juicefs:///mnt/test",
 						Name:       "test2",
 						Options:    map[string]string{"metaurl": "test3", "debug": ""},
 					}}}},

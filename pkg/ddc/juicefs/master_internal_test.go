@@ -91,7 +91,7 @@ func TestSetupMasterInternal(t *testing.T) {
 				Namespace: "fluid",
 			},
 			Spec: datav1alpha1.DatasetSpec{Mounts: []datav1alpha1.Mount{{
-				MountPoint: "jfs://mnt",
+				MountPoint: "juicefs://mnt",
 				Name:       "test",
 				Options: map[string]string{
 					"metaurl": "test",
@@ -187,7 +187,7 @@ func TestGenerateJuiceFSValueFile(t *testing.T) {
 		},
 		Spec: datav1alpha1.DatasetSpec{
 			Mounts: []datav1alpha1.Mount{{
-				MountPoint: "jfs:///mnt/test",
+				MountPoint: "juicefs:///mnt/test",
 				Name:       "test",
 				Options:    map[string]string{"metaurl": "test"},
 			}},

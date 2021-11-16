@@ -524,7 +524,7 @@ func TestParseSubPathFromMountPoint(t *testing.T) {
 		{
 			name: "test-correct",
 			args: args{
-				mountPoint: "jfs:///abc",
+				mountPoint: "juicefs:///abc",
 			},
 			want:    "/abc",
 			wantErr: false,
