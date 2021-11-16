@@ -35,11 +35,29 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	}
 	mount := dataset.Spec.Mounts[0]
 
+	value.Fuse.Prepare.Name = mount.Name
+	opts := make(map[string]string)
 	source := ""
+	for k, v := range mount.Options {
+		switch k {
+		case "metaurl":
+			value.Fuse.Prepare.MetaUrl = v
+			source = v
+			continue
+		case "storage":
+			value.Fuse.Prepare.Storage = v
+			continue
+		case "bucket":
+			value.Fuse.Prepare.Bucket = v
+			continue
+		default:
+			opts[k] = v
+		}
+	}
 	for _, encryptOption := range mount.EncryptOptions {
 		key := encryptOption.Name
 		secretKeyRef := encryptOption.ValueFrom.SecretKeyRef
-		secret, err := utils.GetSecret(j.Client, secretKeyRef.Name, j.namespace)
+		_, err := utils.GetSecret(j.Client, secretKeyRef.Name, j.namespace)
 		if err != nil {
 			j.Log.Info("can't get the secret",
 				"namespace", j.namespace,
@@ -49,31 +67,15 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 		}
 
 		switch key {
-		case "name":
-			value.Fuse.Prepare.NameSecret = secretKeyRef.Name
-		case "metaurl":
-			value.Fuse.Prepare.MetaUrlSecret = secretKeyRef.Name
-			v, ok := secret.Data[secretKeyRef.Key]
-			if !ok {
-				return fmt.Errorf("can't get metaurl from secret %s", secret.Name)
-			}
-			source = string(v)
 		case "access-key":
 			value.Fuse.Prepare.AccessKeySecret = secretKeyRef.Name
 		case "secret-key":
 			value.Fuse.Prepare.SecretKeySecret = secretKeyRef.Name
-		case "storage":
-			value.Fuse.Prepare.StorageSecret = secretKeyRef.Name
-		case "bucket":
-			value.Fuse.Prepare.BucketSecret = secretKeyRef.Name
 		}
 	}
 
-	if value.Fuse.Prepare.NameSecret == "" {
-		return errors.New("can't get name in secret")
-	}
 	if source == "" {
-		return errors.New("can't get metaurl in secret")
+		return errors.New("can't get metaurl")
 	}
 	if !strings.Contains(source, "://") {
 		source = "redis://" + source
@@ -84,11 +86,9 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	tag := runtime.Spec.Fuse.ImageTag
 	imagePullPolicy := runtime.Spec.Fuse.ImagePullPolicy
 
-	subPath := ""
-	if mount.Path != "" {
-		subPath = mount.Path
-	} else {
-		subPath = mount.Name
+	subPath, err := ParseSubPathFromMountPoint(mount.MountPoint)
+	if err != nil {
+		return err
 	}
 	value.Fuse.Image, value.Fuse.ImageTag, value.ImagePullPolicy = j.parseFuseImage(image, tag, imagePullPolicy)
 	value.Fuse.MountPath = j.getMountPoint()
@@ -99,7 +99,7 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 
 	mountArgs := []string{common.JuiceFSMountPath, source, value.Fuse.MountPath}
 	options := []string{"metrics=0.0.0.0:9567"}
-	for k, v := range mount.Options {
+	for k, v := range opts {
 		options = append(options, fmt.Sprintf("%s=%s", k, v))
 	}
 	options = append(options, fmt.Sprintf("subdir=%s", subPath))

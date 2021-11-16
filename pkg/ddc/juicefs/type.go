@@ -65,12 +65,12 @@ type Fuse struct {
 
 type Prepare struct {
 	SubPath         string `yaml:"subPath,omitempty"`
-	NameSecret      string `yaml:"nameSecret"`
-	AccessKeySecret string `yaml:"accesskeySecret"`
-	SecretKeySecret string `yaml:"secretkeySecret"`
-	BucketSecret    string `yaml:"bucketSecret"`
-	MetaUrlSecret   string `yaml:"metaurlSecret"`
-	StorageSecret   string `yaml:"storageSecret"`
+	Name            string `yaml:"name"`
+	AccessKeySecret string `yaml:"accesskeySecret,omitempty"`
+	SecretKeySecret string `yaml:"secretkeySecret,omitempty"`
+	Bucket          string `yaml:"bucket,omitempty"`
+	MetaUrl         string `yaml:"metaurl,omitempty"`
+	Storage         string `yaml:"storage,omitempty"`
 }
 
 type TieredStore struct {
