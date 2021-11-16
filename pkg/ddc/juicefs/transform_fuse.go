@@ -108,6 +108,8 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 		cacheDir = runtime.Spec.TieredStore.Levels[0].Path
 		if runtime.Spec.TieredStore.Levels[0].MediumType == common.Memory {
 			cacheDir = "memory"
+		} else {
+			value.Fuse.CacheDir = cacheDir
 		}
 		if runtime.Spec.TieredStore.Levels[0].Quota != nil {
 			cacheSize = runtime.Spec.TieredStore.Levels[0].Quota.String()
@@ -116,6 +118,8 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 		options = append(options, fmt.Sprintf("cache-dir=%s", cacheDir))
 		options = append(options, fmt.Sprintf("cache-size=%s", cacheSize))
 		options = append(options, fmt.Sprintf("free-space-ratio=%s", cacheRatio))
+	} else {
+		value.Fuse.CacheDir = DefaultCacheDir
 	}
 
 	mountArgs = append(mountArgs, "-o", strings.Join(options, ","))

@@ -59,6 +59,7 @@ fuse:
   dnsPolicy: ClusterFirstWithHostNet
   # Mount path in the host
   mountPath: /mnt/jfs
+  cacheDir: ""
   metaUrl : ""
   hostMountPath: /mnt/jfs
   command: "/usr/local/bin/juicefs mount /mnt/jfs"

@@ -40,7 +40,7 @@ type Worker struct {
 	ImageTag        string                 `yaml:"imageTag,omitempty"`
 	ImagePullPolicy string                 `yaml:"imagePullPolicy,omitempty"`
 	Resources       common.Resources       `yaml:"resources,omitempty"`
-	CacheDir        string                 `yaml:"cache_dir"`
+	CacheDir        string                 `yaml:"cacheDir,omitempty"`
 	Envs            []corev1.EnvVar        `yaml:"envs,omitempty"`
 	Ports           []corev1.ContainerPort `yaml:"ports,omitempty"`
 }
@@ -53,6 +53,7 @@ type Fuse struct {
 	ImageTag        string            `yaml:"imageTag,omitempty"`
 	ImagePullPolicy string            `yaml:"imagePullPolicy,omitempty"`
 	MountPath       string            `yaml:"mountPath,omitempty"`
+	CacheDir        string            `yaml:"cacheDir,omitempty"`
 	MetaUrl         string            `yaml:"metaUrl,omitempty"`
 	HostMountPath   string            `yaml:"hostMountPath,omitempty"`
 	Command         string            `yaml:"command,omitempty"`

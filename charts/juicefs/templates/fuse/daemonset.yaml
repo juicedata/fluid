@@ -144,12 +144,22 @@ spec:
           - mountPath: /root/.juicefs
             mountPropagation: Bidirectional
             name: jfs-root-dir
+          {{- if .Values.fuse.cacheDir }}
+          - name: cache-dir
+            mountPath: {{ .Values.fuse.cacheDir }}
+          {{- end }}
       restartPolicy: Always
       volumes:
         - name: jfs-dir
           hostPath:
             path: {{ .Values.fuse.hostMountPath }}
             type: DirectoryOrCreate
+        {{- if .Values.fuse.cacheDir }}
+        - name: cache-dir
+          hostPath:
+            path: {{ .Values.fuse.cacheDir }}
+            type: DirectoryOrCreate
+        {{- end }}
         - name: jfs-root-dir
           emptyDir: {}
         - name: prepare
