@@ -127,18 +127,12 @@ func (j *JuiceFSEngine) transformFuse(runtime *datav1alpha1.JuiceFSRuntime, data
 	value.Fuse.Command = strings.Join(mountArgs, " ")
 	value.Fuse.StatCmd = "stat -c %i " + value.Fuse.MountPath
 
-	if runtime.Spec.Fuse.Global {
-		if len(runtime.Spec.Fuse.NodeSelector) > 0 {
-			value.Fuse.NodeSelector = runtime.Spec.Fuse.NodeSelector
-		}
-		value.Fuse.NodeSelector[common.FluidFuseBalloonKey] = common.FluidBalloonValue
-		j.Log.Info("Enable Fuse's global mode")
+	if len(runtime.Spec.Fuse.NodeSelector) > 0 {
+		value.Fuse.NodeSelector = runtime.Spec.Fuse.NodeSelector
 	} else {
-		labelName := j.getFuseLabelName()
-		value.Fuse.NodeSelector[labelName] = "true"
-		j.Log.Info("Disable Fuse's global mode")
+		value.Fuse.NodeSelector = map[string]string{}
 	}
-
+	value.Fuse.NodeSelector[j.getFuseLabelName()] = "true"
 	value.Fuse.Enabled = true
 
 	j.transformResourcesForFuse(runtime, value)
